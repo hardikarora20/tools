@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>null</title>
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden; 
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none; 
+        }
+		img, svg, aside {
+            display: none !important;
+        }
+        .chat-message-header {
+            display: none !important;
+        }
+		#message {
+			display: none;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: rgba(0, 0, 0, 0.9); 
+			color: #00FF00; 
+			padding: 20px;
+			border-radius: 10px;
+			z-index: 1000;
+			width: 80%; 
+			max-height: 80%; 
+			overflow-y: auto; 
+			font-family: 'Courier New', Courier, monospace; 
+			font-size: 16px; 
+			white-space: pre-wrap; 
+		}
+    </style>
+</head>
+<body>
+	<div id="message">
+		<pre>
+			Error: Unable to Retrieve Data
+
+			We encountered a problem while trying to connect to the server. Please review the following details:
+
+			Error Code: 503 Service Unavailable
+			Description: The server is currently unable to handle the request due to temporary overloading or maintenance of the server.
+
+			Possible Causes:
+			- The server may be down for maintenance or experiencing high traffic.
+			- There may be network connectivity issues preventing access to the server.
+			- The request may have timed out due to a slow response from the server.
+			- Insufficient tokens to process the request.
+
+			Recommended Actions:
+			- Please check your internet connection to ensure it is stable and functioning properly.
+			- Try refreshing the page or retrying the request after a few moments.
+			- If the issue persists, please contact our support team with the error code and a description of the actions that led to this error.
+
+			We apologize for the inconvenience and appreciate your patience as we work to resolve this issue.
+		</pre>
+	</div>
+    <iframe src="https://ai.easeus.com/webapp/chat?from=ai-chat" title="chat"></iframe>
+</body>
+<script>
+    let inactivityTime = 5000; 
+    let timeout;
+    let isInactiveMessageEnabled = true; 
+
+    function showMessage() {
+        if (isInactiveMessageEnabled) {
+            document.getElementById('message').style.display = 'block';
+			setTimeout(clearPage, 5000);
+        }
+    }
+
+    function resetTimer() {
+        clearTimeout(timeout);
+        document.getElementById('message').style.display = 'none'; 
+        timeout = setTimeout(showMessage, inactivityTime);
+    }
+
+    const userResponse = prompt("authcode");
+    if (userResponse === 'diva@21') {
+        isInactiveMessageEnabled = false; 
+    }
+
+    window.onload = resetTimer; 
+    window.onkeypress = resetTimer; 
+
+    timeout = setTimeout(showMessage, inactivityTime);
+	
+	let devToolsOpen = false;
+
+	const threshold = 160; 
+
+	const checkDevTools = () => {
+	const start = performance.now();
+	debugger;
+	const end = performance.now();
+
+	if (end - start > threshold) {
+		devToolsOpen = true;
+		location.reload(); 
+	}
+	};
+
+	setInterval(checkDevTools, 1000); 
+	function clearPage() {
+		document.body.innerHTML = ''; 
+	}
+</script>
+</html>
