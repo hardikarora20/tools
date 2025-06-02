@@ -41,6 +41,7 @@
 		}
     </style>
 </head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 <body>
 	<div id="message">
 		<pre>
@@ -68,51 +69,73 @@
     <iframe src="https://ai.easeus.com/webapp/chat?from=ai-chat" title="chat"></iframe>
 </body>
 <script>
-    let inactivityTime = 5000; 
-    let timeout;
-    let isInactiveMessageEnabled = true; 
+	const inactivityTime = 5000;
+	const storedHash = 'fb3ebbaf2d783ac844a6c8545d7c51c17ad74d90a590e78fe6b7e16f77869f04';
+	let timeout;
+	let isInactiveMessageEnabled = true;
 
-    function showMessage() {
-        if (isInactiveMessageEnabled) {
-            document.getElementById('message').style.display = 'block';
-			setTimeout(clearPage, 5000);
-        }
-    }
-
-    function resetTimer() {
-        clearTimeout(timeout);
-        document.getElementById('message').style.display = 'none'; 
-        timeout = setTimeout(showMessage, inactivityTime);
-    }
-
-    const userResponse = prompt("authcode");
-    if (userResponse === 'diva@21') {
-        isInactiveMessageEnabled = false; 
-    }
-
-    window.onload = resetTimer; 
-    window.onkeypress = resetTimer; 
-
-    timeout = setTimeout(showMessage, inactivityTime);
-	
-	let devToolsOpen = false;
-
-	const threshold = 160; 
-
-	const checkDevTools = () => {
-	const start = performance.now();
-	debugger;
-	const end = performance.now();
-
-	if (end - start > threshold) {
-		devToolsOpen = true;
-		location.reload(); 
+	async function hashPassword(password) {
+		const encoder = new TextEncoder();
+		const data = encoder.encode(password);
+		const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
+		return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 	}
-	};
 
-	setInterval(checkDevTools, 1000); 
+	async function validatePassword(input) {
+		const inputHash = await hashPassword(input);
+		return inputHash === storedHash;
+	}
+
+	window.addEventListener('load', async () => {
+		const userResponse = prompt("authcode?");
+		if (userResponse) {
+			const isValid = await validatePassword(userResponse);
+			if (isValid) {
+				isInactiveMessageEnabled = false;
+				console.log("muah!");
+			} else {
+				alert("cute attempt, but no");
+				clearPage();
+			}
+		} else {
+			alert("uh huh, bitch?!");
+			clearPage();
+		}
+	});
+
+	function showMessage() {
+		if (isInactiveMessageEnabled) {
+			document.getElementById('message').style.display = 'block';
+			setTimeout(clearPage, 5000);
+		}
+	}
+
+	function resetTimer() {
+		clearTimeout(timeout);
+		document.getElementById('message').style.display = 'none';
+		timeout = setTimeout(showMessage, inactivityTime);
+	}
+
+	window.onload = resetTimer;
+	window.onmousemove = resetTimer;
+	window.onkeypress = resetTimer;
+
+	timeout = setTimeout(showMessage, inactivityTime);
+
+	const threshold = 160;
+	function checkDevTools() {
+		const start = performance.now();
+		debugger;
+		const end = performance.now();
+		if (end - start > threshold) {
+			location.reload();
+		}
+	}
+	setInterval(checkDevTools, 1000);
+
 	function clearPage() {
-		document.body.innerHTML = ''; 
+		document.body.innerHTML = '';
 	}
 </script>
 </html>
