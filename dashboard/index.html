@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Scripts</title>
+  <style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+        background-color: #121212;
+        color: #ffffff;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        background-color: #1e1e1e;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(255, 105, 180, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 300px;
+    }
+
+    h2 {
+        color: #ec4899;
+        text-align: center;
+    }
+
+    select,
+    input[type="date"],
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #eee;
+      box-sizing: border-box;
+    }
+
+    select,
+    input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #eee;
+      box-sizing: border-box;
+    }
+
+    button {
+        background-color: #ec4899;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    button:hover {
+        background-color: #d33682;
+    }
+
+    body {
+      background: #1e1f22;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #ddd;
+    }
+    .container {
+      background: #2b2d31;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      width: 400px;
+      z-index: 99;
+      animation: fadeIn 0.6s forwards;
+    }
+    textarea {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      padding: 12px;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #eee;
+      box-sizing: border-box;
+      resize: vertical;
+      outline: none;
+      z-index:150;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 14px;
+      background: #8ecae6;
+      border: none;
+      border-radius: 8px;
+      color: #1e1f22;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #9fd4ed;
+    }
+
+    @keyframes fadeIn {
+        0%{
+            opacity: 0;
+        }
+        100%{
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        0%{
+            opacity: 1;
+        }
+        100%{
+            opacity: 0;
+        }
+    }
+    
+    .input-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #eee;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    input[type = "date"]::-webkit-calendar-picker-indicator{
+        filter: invert(100%);
+    }
+    .radio-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .radio-group label {
+        flex: 1 0 45%;
+        cursor: pointer;
+    }
+
+    .radio-group input[type="radio"] {
+        display: none;
+    }
+
+    .radio-btn {
+        padding: 12px;
+        border-radius: 5px;
+        background: #1e1f22;
+        border: 1px solid #444;
+        color: #fff;
+        text-align: center;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Highlight whole button on checked */
+    .radio-group input[type="radio"]:checked + .radio-btn {
+        background-color: #8ecae6;
+        color: #1e1f22;
+        font-weight: bold;
+    }
+
+    /* Hover style stays the same */
+    .radio-btn:hover {
+        background-color: #8ecae6;
+        color: #1e1f22;
+        font-weight: bold;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- <h2>Download Report</h2> -->
+    <div class="radio-group" id="reportGroup">
+        <label>
+            <input type="radio" name="report" value="201" checked>
+            <div class="radio-btn">201</div>
+        </label>
+        <label>
+            <input type="radio" name="report" value="209">
+            <div class="radio-btn">209</div>
+        </label>
+        <label>
+            <input type="radio" name="report" value="303">
+            <div class="radio-btn">303</div>
+        </label>
+        <label>
+            <input type="radio" name="report" value="306">
+            <div class="radio-btn">306</div>
+        </label>
+    </div>
+      <!-- <select id="reportSelect">
+      <option value="201">201</option>
+      <option value="209">209</option>
+      <option value="303">303</option>
+      <option value="306">306</option>
+    </select> -->
+
+    <input type="date" id="dateInput" />
+
+    <button onclick="downloadReport()">Download Dashboard Scripts</button>
+  </div>
+
+  <script>
+    const scripts = {
+        201: `insert into dash.DASH_SUB_REG (DSR_DDO_TAN,DSR_PAO_AIN,DSR_PRAO_AIN,DSR_PAO_TYPE, DSR_DATA_GEN_DATE,DSR_OPEN_BALANCE, DSR_SUB_REGISTER,DSR_SUB_SHIFTED_IN,DSR_SUB_SHIFTED_OUT,DSR_SUB_ACTIVE, DSR_SUB_DEACTIVE,DSR_SUB_BLOCKED,DSR_SUB_NON_IRA_COMP,DSR_SUB_IRA_COMP,DSR_CRTD_BY,DSR_CRTD_TMSTMP,DSR_SECTOR_TYP,DSR_GOVT_TYP ,DSR_MODEL_CODE, DSR_SUB_DESERTED,DSR_SUB_NONIRA_DESERTED) (select C.ddo_tan,C.pao_ain,C.prao_ain,C.pao_type, '{to}' ,coalesce(C.COUNT_OPENING_BALANCE,0) , case when C.COUNT_REGISTERED is null then 0 else C.COUNT_REGISTERED end ,case when D.PRAN_COUNT_MOVED_IN is null then 0 else D.PRAN_COUNT_MOVED_IN end ,case when E.PRAN_COUNT_MOVED_OUT is null then 0 else E.PRAN_COUNT_MOVED_OUT end ,coalesce(C.COUNT_ACTIVE, 0) ,coalesce(C.COUNT_INACTIVE,0) ,0 as BLOCKED,coalesce(C.COUNT_NON_IRA_COMPLIANT,0),coalesce(C.COUNT_IRA_COMPLIANT,0),'Admin', current timestamp,C.SECTOR_CATEGORY,C.PAO_GOVT_TYPE, C.PRAO_MODEL_CODE,coalesce(C.IRA_DESERTED_SUB,0),coalesce(C.NON_IRA_DESERTED_SUB,0)  from (select A.sub_pao_id,X.ddo_tan,A.SEM_DDO_ID,X.pao_ain,X.prao_ain,X.pao_type,X.PAO_GOVT_TYPE, X.SECTOR_CATEGORY, X.PRAO_MODEL_CODE, A.COUNT_OPENING_BALANCE,B.COUNT_REGISTERED,A.COUNT_ACTIVE,A.COUNT_INACTIVE,A.COUNT_NON_IRA_COMPLIANT, A.COUNT_IRA_COMPLIANT, A.IRA_DESERTED_SUB, A.NON_IRA_DESERTED_SUB from (select ddo_tan, pao_ain, prao_ain, pao_type, PAO_GOVT_TYPE, SECTOR_CATEGORY, PRAO_MODEL_CODE  from dash.pao_mst,  dash.prao_mst, master.ddo_mst, master.state_model_map_mst where DDO_PAO_ID_FK=pao_id_pk and PAO_PRAO_ID_FK = PRAO_ID_PK and  GOVT_CODE_PK = pao_govt_type )X left outer join (select sub_pao_id,ddo_tan,SEM_DDO_ID,pao_ain,prao_ain,pao_type,sum(case when sub_sts = 'V' then 1 else 0 end) as COUNT_OPENING_BALANCE, sum (case when sub_sts = 'I' or sub_sts = 'D' then 1 else 0 end) as COUNT_INACTIVE, sum(case when sub_sts = 'V' then 1 else 0 end) as COUNT_ACTIVE, sum(case when (SUB_INACTVN_RSN_CD not in (1,2,3,4,5) or SUB_INACTVN_RSN_CD is null) and  SUB_LEGACY_FLAG = 'N' and sub_sts= 'V' then 1 else 0 end) as COUNT_IRA_COMPLIANT, sum(case when (SUB_INACTVN_RSN_CD not in (1,2,3,4,5) or SUB_INACTVN_RSN_CD is null) and SUB_LEGACY_FLAG = 'Y' and sub_sts = 'V' then 1 else 0 end) as COUNT_NON_IRA_COMPLIANT, sum(case when SUB_INACTVN_RSN_CD in (1,2,3,4,5) and SUB_LEGACY_FLAG = 'N' and sub_sts = 'V' then 1 else 0 end) as IRA_DESERTED_SUB,sum(case when SUB_INACTVN_RSN_CD in (1,2,3,4,5) and SUB_LEGACY_FLAG = 'Y' and sub_sts = 'V' then 1 else 0 end) as NON_IRA_DESERTED_SUB from master.sub_mst, sub.sub_emp ,dash.pao_mst  , dash.prao_mst,master.ddo_mst where sub_pran = sem_pran and sub_pao_id = PAO_ID_PK and sem_pao_id=pao_id_pk and DDO_PAO_ID_FK=pao_id_pk  and PAO_PRAO_ID_FK = PRAO_ID_PK  and sem_ddo_id = ddo_id_pk  group by sub_pao_id,ddo_tan,SEM_DDO_ID, pao_ain,prao_ain,pao_type)A on X.ddo_tan=A.ddo_tan left outer join (select ddo_tan,count(sub_pran) as COUNT_REGISTERED from master.sub_mst, sub.sub_emp ,master.ddo_mst,dash.pao_mst where sub_pran = sem_pran  and sem_ddo_id = ddo_id_pk and DDO_PAO_ID_FK=pao_id_pk and date(SUB_CRTD_TMSTMP)   > '{from}'  and date(SUB_CRTD_TMSTMP)  <= '{to}'  group by ddo_tan) B on A.ddo_tan = B.ddo_tan) C left outer join (select  pao_ain,ddo_tan,SUM(PRAN_COUNT_MOVED_IN) AS PRAN_COUNT_MOVED_IN from ((select  pao_ain,ddo_tan,count(*) as PRAN_COUNT_MOVED_IN from pao.SUB_MAP_CHNG_DTL,dash.pao_mst,master.ddo_mst where pao_id_pk=SMCD_PAO_ID_CURR and DDO_ID_PK=SMCD_DDO_ID_curr and date(SMCD_CRTD_TMSTMP)   > '{from}'  and date(SMCD_CRTD_TMSTMP) <= '{to}' and SMCD_PAO_ID_CURR<>SMCD_PAO_ID_prv AND SMCD_MAP_FLAG NOT IN ('Z') group by pao_ain,ddo_tan)UNION(select SSH_TGT_POPSP_REGNO as PAO_AIN,SSI_AUD_TRGT_DDO_TAN as ddo_tan ,count(SSH_PRAN) as PRAN_COUNT_MOVED_IN from  sub.sub_shift_int_aud,master.sub_tier_mst,sub.sub_shift,dash.pao_mst where  stm_pran=ssh_pran and stm_tier_type='T1'  and date(SSH_MDFD_TMSTMP) > '{from}'  and date(SSH_MDFD_TMSTMP)  <= '{to}'  and PAO_AIN=SSH_TGT_POPSP_REGNO   and SSH_SRC_POPSP_REGNO <>SSH_TGT_POPSP_REGNO  and SSH_STATUS in('C','1') and SSI_AUD_PRAN=ssh_pran and SSI_AUD_ACK_NO=SSH_ACK_NO group by  SSH_TGT_POPSP_REGNO,SSI_AUD_TRGT_DDO_TAN))A group by pao_ain, ddo_tan) D on  C.pao_ain = D.pao_ain and C.DDO_TAN=D.DDO_TAN left outer join (select  pao_ain,ddo_tan,SUM(PRAN_COUNT_MOVED_OUT) AS PRAN_COUNT_MOVED_OUT from((select  pao_ain,ddo_tan,count(*) as PRAN_COUNT_MOVED_OUT from pao.SUB_MAP_CHNG_DTL ,dash.pao_mst,master.ddo_mst where pao_id_pk=SMCD_PAO_ID_PRV and DDO_ID_PK=SMCD_DDO_ID_PRV and date(SMCD_CRTD_TMSTMP)  > '{from}'  and date(SMCD_CRTD_TMSTMP)  <= '{to}'  and SMCD_PAO_ID_CURR<>SMCD_PAO_ID_prv AND SMCD_MAP_FLAG NOT IN ('Z') group by SMCD_PAO_ID_PRV,SMCD_DDO_ID_PRV,ddo_tan, pao_ain) UNION (select SSH_SRC_POPSP_REGNO as PAO_AIN,SSI_AUD_SRC_DDO_TAN as ddo_tan,count(SSH_PRAN) as PRAN_COUNT_MOVED_OUT from sub.sub_shift_int_aud,master.sub_tier_mst,sub.sub_shift,dash.pao_mst where  stm_pran=ssh_pran and stm_tier_type='T1'  and date(SSH_MDFD_TMSTMP) > '{from}'  and date(SSH_MDFD_TMSTMP)  <= '{to}'  and PAO_AIN=SSH_SRC_POPSP_REGNO  and SSH_SRC_POPSP_REGNO <>SSH_TGT_POPSP_REGNO  and SSH_STATUS in('C','1') and SSI_AUD_PRAN =ssh_pran and SSI_AUD_ACK_NO=SSH_ACK_NO group by  SSH_TGT_POPSP_REGNO ,SSH_SRC_POPSP_REGNO,SSI_AUD_SRC_DDO_TAN))E group by pao_ain, ddo_tan) E on C.pao_ain=E.pao_ain and C.DDO_TAN=E.DDO_TAN) with ur;
+
+
+DELETE FROM DASH.DASH_SUB_REG WHERE DSR_PRAO_AIN IN (SELECT RDU_REG_NO FROM  MASTER.RPT_DUMMY_USRS WHERE RDU_ENTY_NM IN ('PrAO','POP') with ur);
+
+
+DELETE FROM DASH.DASH_SUB_REG_NONIRA;
+
+
+INSERT INTO DASH.DASH_SUB_REG_NONIRA (DSN_PRAN,DSN_PPAN,DSN_PAO_AIN,DSN_PAO_TYPE,DSN_PRAO_AIN ,DSN_DATA_GEN_DATE,DSN_SUB_FST_NAM,DSN_SUB_LST_NAM,DSN_CRTD_BY,DSN_CRTD_TMSTMP,DSN_SECTOR_TYP,DSN_GOVT_TYP,DSN_MODEL_CODE ) (SELECT SUB_PRAN,SEM_PPAN,PAO_AIN,PAO_TYPE,PRAO_AIN,'{to}',substr (SUB_FST_NAM, 1,30) as SUB_FST_NAM ,SUB_LST_NAM,'ADMIN',CURRENT TIMESTAMP,SECTOR_CATEGORY,PAO_GOVT_TYPE,PRAO_MODEL_CODE FROM MASTER.SUB_MST, dash.PAO_MST,SUB.SUB_EMP,MASTER.DDO_MST,dash.PRAO_MST,MASTER.STATE_MODEL_MAP_MST WHERE SUB_LEGACY_FLAG = 'Y' AND SUB_STS = 'V' AND  SUB_PAO_ID = PAO_ID_PK  AND sem_pao_id=pao_id_pk and SEM_PRAN = SUB_PRAN AND SEM_DDO_ID = DDO_ID_PK AND DDO_PAO_ID_FK=PAO_ID_PK AND PAO_PRAO_ID_FK = PRAO_ID_PK AND (SUB_INACTVN_RSN_CD not in (1,2,3,4,5) or SUB_INACTVN_RSN_CD is null) AND PAO_GOVT_TYPE=GOVT_CODE_PK) WITH UR ;
+
+
+DELETE FROM DASH.DASH_SUB_REG_NONIRA WHERE DSN_PRAO_AIN IN (SELECT RDU_REG_NO FROM  MASTER.RPT_DUMMY_USRS WHERE RDU_ENTY_NM IN ('PrAO','POP') with ur);`,
+        209: `DECLARE GLOBAL TEMPORARY TABLE session.DASH_FIN_GTT ( DCC_PRAN BIGINT, DCC_FILE_MNTH_YEAR CHARACTER(6)) WITH REPLACE ON COMMIT PRESERVE ROWS NOT LOGGED IN STL_GLBL_TSPC;
+
+
+insert into session.DASH_FIN_GTT(DCC_PRAN,DCC_FILE_MNTH_YEAR)(select DCC_PRAN,DCC_FILE_UPLOAD_YM from dash.DASH_CONTRA_CREDIT_PRAN_DTLS where DCC_MDFD_TMSTMP is not null  and DCC_MDFD_TMSTMP>'{fromDashFormat}-23.59.59.000000' and DCC_MDFD_TMSTMP< '{toDashFormat}-23.59.59.000000' ) with ur;
+
+
+INSERT INTO DASH.DASH_CONTRA_CREDIT_PRAN_DTLS (DCC_PAO_AIN,DCC_PRAO_AIN,DCC_PAO_TYPE,DCC_SECTOR_TYP,DCC_GOVT_TYP,DCC_MODEL_CODE, DCC_DATA_GEN_DATE,  DCC_PRAN,DCC_PPAN,DCC_STATUS,DCC_DATE_JOIN,DCC_AMT_UPLD,DCC_FILE_UPLOAD_MNTH ,DCC_FILE_UPLOAD_YEAR,DCC_FILE_UPLOAD_YM, DCC_FIN_YEAR,DCC_CRTD_BY,DCC_CRTD_TMSTMP,DCC_CONTR_TYPE_FLAG)  ( SELECT PBH_PAO_AIN, PRAO_AIN, PAO_TYPE, SECTOR_CATEGORY,  PAO_GOVT_TYPE, PRAO_MODEl_CODE,'{to}',  PSD_PRAN, SEM_PPAN, SUB_STS,  SEM_DOJ, PSD_TOT_CONTR_AMT AS AMT_MB, PSD_CONTR_MONTH,  PSD_CONTR_YEAR, PSD_CONTR_YEAR||PSD_CONTR_MONTH,   (CASE      WHEN cast(PSD_CONTR_MONTH as INTEGER)> 3      THEN PSD_CONTR_YEAR || '-'|| trim(char(cast(PSD_CONTR_YEAR as  Integer)+ 1))   ELSE trim(char(cast(PSD_CONTR_YEAR as Integer)-1))|| '-'  ||PSD_CONTR_YEAR END)AS FIN_YEAR, 'Admin' , current  timestamp,(CASE WHEN PSD_CONTR_TYPE='C' THEN 'C' ELSE 'A' END) AS CONTR_TYPE_FLAG   FROM PAO.PAO_BATCH_HDR, PAO.PAO_SUB_DTL, dash.pao_mst,  dash.prao_mst, MASTER.STATE_MODEL_MAP_MST, SUB.SUB_EMP,MASTER.SUB_MST   WHERE    SUB_PRAn=PSD_PRAn and  SEM_PRAN=PSD_PRAN and  GOVT_CODE_PK=  PAO_GOVT_TYPE and    PBH_BATCH_ID_PK=PSD_BATCH_ID_PK AND  PSD_BATCH_ID_PK!=0 and     PBH_PAO_AIN=PAO_AIN AND   PAO_STS=1 AND    PSD_CONTR_TYPE IN ('C','A')  AND    PBH_STS IN ('M','B','5') and    PAO_PRAO_ID_FK=  PRAO_ID_PK AND    PBH_MDFD_TMSTMP >'{fromDashFormat}-23.59.59.000000' AND PBH_MDFD_TMSTMP <= '{toDashFormat}-23.59.59.000000' and    (PSD_CONTR_YEAR||PSD_CONTR_MONTH)>='202204' and    length(trim(PSD_CONTR_YEAR))>0 and length(trim(PSD_CONTR_month))>0 and     char(prao_ain) not in(select RDU_REG_NO from master.RPT_DUMMY_USRS)    and char(pao_ain) not in (select RDU_REG_NO from master.RPT_DUMMY_USRS)    and pbh_trsn_id in (select pbh_trsn_id from pao.pao_batch_hdr  where pbh_mdfd_tmstmp >'{fromDashFormat}-23.59.59.000000') and    PSD_PRAN  not in ( SELECT DCC_PRAN from session.DASH_FIN_GTT where (PSD_CONTR_YEAR||PSD_CONTR_MONTH)=DCC_FILE_MNTH_YEAR and DCC_PRAN=PSD_PRAN));
+
+
+INSERT INTO DASH.DASH_CONTRA_CREDIT_PRAN_DTLS (DCC_PAO_AIN, DCC_PRAO_AIN, DCC_PAO_TYPE, DCC_SECTOR_TYP, DCC_GOVT_TYP, DCC_MODEL_CODE, DCC_DATA_GEN_DATE, DCC_PRAN, DCC_PPAN, DCC_STATUS, DCC_DATE_JOIN, DCC_AMT_UPLD, DCC_FILE_UPLOAD_MNTH ,DCC_FILE_UPLOAD_YEAR, DCC_FILE_UPLOAD_YM, DCC_FIN_YEAR, DCC_CRTD_BY, DCC_CRTD_TMSTMP, DCC_CONTR_TYPE_FLAG)(SELECT PBH_PAO_AIN, PRAO_AIN, PAO_TYPE, SECTOR_CATEGORY, PAO_GOVT_TYPE, PRAO_MODEl_CODE, '{to}', PSD_PRAN, SEM_PPAN, SUB_STS, SEM_DOJ, PSD_TOT_CONTR_AMT AS AMT_MB, PSD_CONTR_MONTH, PSD_CONTR_YEAR,  PSD_CONTR_YEAR ||PSD_CONTR_MONTH, (CASE WHEN cast(PSD_CONTR_MONTH as INTEGER) > 3 THEN PSD_CONTR_YEAR || '-' || trim(char(cast(PSD_CONTR_YEAR as Integer) + 1)) ELSE trim(char(cast(PSD_CONTR_YEAR as Integer) -1))|| '-' ||PSD_CONTR_YEAR END) AS FIN_YEAR,'Admin', current timestamp ,(CASE WHEN PSD_CONTR_TYPE='C' THEN 'C' ELSE 'A' END) AS CONTR_TYPE_FLAG FROM PAO.PAO_BATCH_HDR, PAO.PAO_SUB_DTL, dash.pao_mst, dash.prao_mst, MASTER.STATE_MODEL_MAP_MST, SUB.SUB_EMP, MASTER.SUB_MST WHERE SUB_PRAn=PSD_PRAn and SEM_PRAN=PSD_PRAN and GOVT_CODE_PK=PAO_GOVT_TYPE and sub_pran=sem_pran and sub_pao_id=pao_id_pk and PBH_BATCH_ID_PK=PSD_BATCH_ID_PK AND PBH_PAO_AIN=PrAO_AIN AND PAO_STS=1 AND PSD_CONTR_TYPE IN ('C','A') AND PBH_STS IN ('M','B','5') AND PRAO_MODEL_CODE in ('06','08','03','11','12') and PAO_PRAO_ID_FK=PRAO_ID_PK AND PBH_MDFD_TMSTMP>'{fromDashFormat}-23.59.59.000000' AND PBH_MDFD_TMSTMP <= '{toDashFormat}-23.59.59.000000' and (PSD_CONTR_YEAR||PSD_CONTR_MONTH) >='202204' AND length(trim(PSD_CONTR_YEAR))>0 and length(trim(PSD_CONTR_month))>0 and  char(prao_ain) not in(select RDU_REG_NO from master.RPT_DUMMY_USRS) and char(pao_ain) not in (select RDU_REG_NO from master.RPT_DUMMY_USRS) and pbh_trsn_id in (select pbh_trsn_id from pao.pao_batch_hdr  where pbh_mdfd_tmstmp>'{fromDashFormat}-23.59.59.000000') and   PSD_PRAN not in (SELECT DCC_PRAN from session.DASH_FIN_GTT where (PSD_CONTR_YEAR||PSD_CONTR_MONTH)=DCC_FILE_MNTH_YEAR and DCC_PRAN=PSD_PRAN )) ;`,
+        303: `time db2 "delete from DASH.DASH_AMTWISE_STS_REP where DAS_DATA_GEN_DATE < (select MIN(DAS_DATA_GEN_DATE) FROM (select distinct DAS_DATA_GEN_DATE from DASH.DASH_AMTWISE_STS_REP order by DAS_DATA_GEN_DATE desc fetch first 7 rows only))"
+
+
+time db2 "delete from DASH.DASH_AMT_CREDIT_SUMRY where DACS_DATA_GEN_DATE < (SELECT MIN(DACS_DATA_GEN_DATE) FROM (select distinct DACS_DATA_GEN_DATE from DASH.DASH_AMT_CREDIT_SUMRY order by DACS_DATA_GEN_DATE desc fetch first 7 rows only))"
+
+
+time db2 "INSERT INTO DASH.DASH_AMTWISE_STS_REP(  DAS_PFM_ID,DAS_SCH_ID,DAS_SCH_PREF_TYPE,DAS_SCH_TYPE_FLG,DAS_TIER_TYPE,DAS_NAV,DAS_AMT_INVEST,DAS_DATA_GEN_DATE,DAS_PRAN_COUNT,DAS_PFM_PRAN_COUNT,DAS_CRTD_BY,DAS_CRTD_TMSTMP  )  (  SELECT  A.SSC_PFM_ID,A.SSC_SCH_ID, A.STM_SCH_PREF_TYPE, A.PSM_SCH_TYPE_FLG,A.STM_TIER_TYPE,D.PPD_NAV,D.PPD_NAV*B.TOT_UNT,  '{to}', A.PRAN_COUNT,0,'Admin',current timestamp  FROM  (  SELECT SSC_PFM_ID,SSC_SCH_ID,STM_TIER_TYPE,STM_SCH_PREF_TYPE,PSM_SCH_TYPE_FLG,COUNT(SSC_PRAN) PRAN_COUNT  FROM SUB.SUB_SCH, MASTER.SUB_TIER_MST,MASTER.PFM_SCH_MST,MASTER.PAO_MST ,(select '{to}' ,timestamp('{to}')+1 as cra_biz_dt_tmstmp  from master.stl_date_mst )  WHERE  STM_CRTD_TMSTMP < '{fromDashFormat}-00.00.00.000000'  AND STM_TIER_TYPE = SSC_TIER_TYPE  AND STM_PRAN=SSC_PRAN  AND STM_ENTITY_ID=PAO_ID_PK  AND PAO_GOVT_TYPE LIKE '2%'  AND PSM_SCH_TYPE_FLG IN ('E','C','G','A')  AND PSM_ID_PK=SSC_SCH_ID  AND SSC_PFM_ID=PSM_PFM_ID  AND STM_STATUS='V'  AND PAO_STS=1  GROUP BY SSC_PFM_ID,SSC_SCH_ID,STM_TIER_TYPE,STM_SCH_PREF_TYPE,PSM_SCH_TYPE_FLG  ) A  LEFT OUTER JOIN  (  SELECT SUM(SSB_TOT_UNT) AS TOT_UNT,STM_SCH_PREF_TYPE,SSB_SCH_ID,SSB_TIER_TYPE,SSB_PFM_ID  FROM MASTER.SUB_TIER_MST,MASTER.PAO_MST, STL.STL_SUB_BAL_UNT_ACC ,(select '{to}' ,timestamp('{to}')+1 as cra_biz_dt_tmstmp  from master.stl_date_mst )  WHERE  STM_PRAN=SSB_PRAN  AND STM_TIER_TYPE=SSB_TIER_TYPE  AND STM_ENTITY_ID=PAO_ID_PK  AND PAO_TYPE LIKE '2%'  AND STM_STATUS='V'  AND SSB_MDFD_TMSTMP < '{fromDashFormat}-00.00.00.000000'  GROUP BY SSB_SCH_ID,SSB_TIER_TYPE, SSB_PFM_ID,STM_SCH_PREF_TYPE  ) B  ON (A.STM_SCH_PREF_TYPE=B.STM_SCH_PREF_TYPE and A.SSC_SCH_ID=B.SSB_SCH_ID AND A.STM_TIER_TYPE=SSB_TIER_TYPE and A.SSC_PFM_ID=B.SSB_PFM_ID )  LEFT OUTER JOIN  (  SELECT PPD_NAV,PPD_SCH_ID_PK,PPD_PFM_ID  FROM  PFM.PFM_PAYOUT_DTL  WHERE  PPD_BUSS_DT_PK = ( select stl_biz_dt from master.stl_date_mst )  ) D ON (A.SSC_SCH_ID=D.PPD_SCH_ID_PK AND A.SSC_PFM_ID=D.PPD_PFM_ID )  ORDER BY A.SSC_PFM_ID,A.SSC_SCH_ID,A.STM_TIER_TYPE,A.STM_SCH_PREF_TYPE  ) with ur ";
+
+
+time db2 "INSERT INTO DASH.DASH_AMT_CREDIT_SUMRY( DACS_AMTRNG_GRP_ID, DACS_CREDIT_COUNT,DACS_PRAN_COUNT,DACS_ADDN_N_MONTH,DACS_TIER_TYPE,DACS_DATA_GEN_DATE,DACS_CRTD_BY,DACS_CRTD_TMSTMP ) ( select DAR_GRP_ID_PK, sum(total_credit) DACS_CREDIT_COUNT, count(DISTINCT PSD_PRAN) DACS_PRAN_COUNT, sum(month_Add) month_count, PSD_TIER_TYPE, '{to}', 'ADMIN', CURRENT TIMESTAMP from ( select DAR_GRP_ID_PK,PSD_PRAN,PSD_TIER_TYPE,TOTAL_CREDIT, MONTH_ADD , PSD_TOT_CONTR_AMT from ( SELECT PSD_PRAN,PSD_TIER_TYPE, COUNT(1) as TOTAL_CREDIT, SUM(MONTH_ADD) AS MONTH_ADD,sum(PSD_TOT_CONTR_AMT) AS PSD_TOT_CONTR_AMT FROM ( select PSD_PRAN,PSD_TIER_TYPE,DECODE(TRIM(TO_CHAR(PBH_MDFD_TMSTMP,'YYYYMM')),cra_biz_dt_form,1,0) AS MONTH_ADD,PSD_TOT_CONTR_AMT from pao.PAO_SUB_DTL, pao.PAO_BATCH_HDR, MASTER.SUB_TIER_MST ,( select '{to}', TRIM(to_char('{to}','YYYYMM')) as cra_biz_dt_form, timestamp('{to}')+1 as cra_biz_dt_tmstmp from master.stl_date_mst ) where PSD_CONTR_TYPE in('U','T') AND PSD_BATCH_ID_PK=PBH_BATCH_ID_PK AND STM_STATUS in ('V','F','S') AND STM_TIER_TYPE=PSD_TIER_TYPE AND STM_PRAN=PSD_PRAN AND PBH_MDFD_TMSTMP < '{fromDashFormat}-00.00.00.000000' and PBH_STS IN('M','B','5') ) group by PSD_PRAN, PSD_TIER_TYPE ) A , DASH.DASH_AMOUNT_RANGE_DTL where PSD_TOT_CONTR_AMT > DAR_MIN_AMT AND PSD_TOT_CONTR_AMT <= DAR_MAX_AMT ) E group by DAR_GRP_ID_PK,PSD_TIER_TYPE order by DAR_GRP_ID_PK ) WITH UR ";`,
+        306: `insert into dash.DASH_SUB_REG (DSR_DDO_TAN,DSR_PAO_AIN,DSR_PRAO_AIN,DSR_PAO_TYPE, DSR_DATA_GEN_DATE,DSR_OPEN_BALANCE, DSR_SUB_REGISTER,DSR_SUB_SHIFTED_IN,DSR_SUB_SHIFTED_OUT,DSR_SUB_ACTIVE, DSR_SUB_DEACTIVE,DSR_SUB_BLOCKED,DSR_SUB_NON_IRA_COMP,DSR_SUB_IRA_COMP,DSR_CRTD_BY,DSR_CRTD_TMSTMP,DSR_SECTOR_TYP,DSR_GOVT_TYP ,DSR_MODEL_CODE, DSR_SUB_DESERTED,DSR_SUB_NONIRA_DESERTED) (select C.ddo_tan,C.pao_ain,C.prao_ain,C.pao_type, '{to}' ,coalesce(C.COUNT_OPENING_BALANCE,0) , case when C.COUNT_REGISTERED is null then 0 else C.COUNT_REGISTERED end ,case when D.PRAN_COUNT_MOVED_IN is null then 0 else D.PRAN_COUNT_MOVED_IN end ,case when E.PRAN_COUNT_MOVED_OUT is null then 0 else E.PRAN_COUNT_MOVED_OUT end ,coalesce(C.COUNT_ACTIVE, 0) ,coalesce(C.COUNT_INACTIVE,0) ,0 as BLOCKED,coalesce(C.COUNT_NON_IRA_COMPLIANT,0),coalesce(C.COUNT_IRA_COMPLIANT,0),'Admin', current timestamp,C.SECTOR_CATEGORY,C.PAO_GOVT_TYPE, C.PRAO_MODEL_CODE,coalesce(C.IRA_DESERTED_SUB,0),coalesce(C.NON_IRA_DESERTED_SUB,0)  from (select A.sub_pao_id,X.ddo_tan,A.SEM_DDO_ID,X.pao_ain,X.prao_ain,X.pao_type,X.PAO_GOVT_TYPE, X.SECTOR_CATEGORY, X.PRAO_MODEL_CODE, A.COUNT_OPENING_BALANCE,B.COUNT_REGISTERED,A.COUNT_ACTIVE,A.COUNT_INACTIVE,A.COUNT_NON_IRA_COMPLIANT, A.COUNT_IRA_COMPLIANT, A.IRA_DESERTED_SUB, A.NON_IRA_DESERTED_SUB from (select ddo_tan, pao_ain, prao_ain, pao_type, PAO_GOVT_TYPE, SECTOR_CATEGORY, PRAO_MODEL_CODE  from dash.pao_mst,  dash.prao_mst, master.ddo_mst, master.state_model_map_mst where DDO_PAO_ID_FK=pao_id_pk and PAO_PRAO_ID_FK = PRAO_ID_PK and  GOVT_CODE_PK = pao_govt_type )X left outer join (select sub_pao_id,ddo_tan,SEM_DDO_ID,pao_ain,prao_ain,pao_type,sum(case when sub_sts = 'V' then 1 else 0 end) as COUNT_OPENING_BALANCE, sum (case when sub_sts = 'I' or sub_sts = 'D' then 1 else 0 end) as COUNT_INACTIVE, sum(case when sub_sts = 'V' then 1 else 0 end) as COUNT_ACTIVE, sum(case when (SUB_INACTVN_RSN_CD not in (1,2,3,4,5) or SUB_INACTVN_RSN_CD is null) and  SUB_LEGACY_FLAG = 'N' and sub_sts= 'V' then 1 else 0 end) as COUNT_IRA_COMPLIANT, sum(case when (SUB_INACTVN_RSN_CD not in (1,2,3,4,5) or SUB_INACTVN_RSN_CD is null) and SUB_LEGACY_FLAG = 'Y' and sub_sts = 'V' then 1 else 0 end) as COUNT_NON_IRA_COMPLIANT, sum(case when SUB_INACTVN_RSN_CD in (1,2,3,4,5) and SUB_LEGACY_FLAG = 'N' and sub_sts = 'V' then 1 else 0 end) as IRA_DESERTED_SUB,sum(case when SUB_INACTVN_RSN_CD in (1,2,3,4,5) and SUB_LEGACY_FLAG = 'Y' and sub_sts = 'V' then 1 else 0 end) as NON_IRA_DESERTED_SUB from master.sub_mst, sub.sub_emp ,dash.pao_mst  , dash.prao_mst,master.ddo_mst where sub_pran = sem_pran and sub_pao_id = PAO_ID_PK and sem_pao_id=pao_id_pk and DDO_PAO_ID_FK=pao_id_pk  and PAO_PRAO_ID_FK = PRAO_ID_PK  and sem_ddo_id = ddo_id_pk  group by sub_pao_id,ddo_tan,SEM_DDO_ID, pao_ain,prao_ain,pao_type)A on X.ddo_tan=A.ddo_tan left outer join (select ddo_tan,count(sub_pran) as COUNT_REGISTERED from master.sub_mst, sub.sub_emp ,master.ddo_mst,dash.pao_mst where sub_pran = sem_pran  and sem_ddo_id = ddo_id_pk and DDO_PAO_ID_FK=pao_id_pk and date(SUB_CRTD_TMSTMP)   > '{from}'  and date(SUB_CRTD_TMSTMP)  <= '{to}'  group by ddo_tan) B on A.ddo_tan = B.ddo_tan) C left outer join (select  pao_ain,ddo_tan,SUM(PRAN_COUNT_MOVED_IN) AS PRAN_COUNT_MOVED_IN from ((select  pao_ain,ddo_tan,count(*) as PRAN_COUNT_MOVED_IN from pao.SUB_MAP_CHNG_DTL,dash.pao_mst,master.ddo_mst where pao_id_pk=SMCD_PAO_ID_CURR and DDO_ID_PK=SMCD_DDO_ID_curr and date(SMCD_CRTD_TMSTMP)   > '{from}'  and date(SMCD_CRTD_TMSTMP) <= '{to}' and SMCD_PAO_ID_CURR<>SMCD_PAO_ID_prv AND SMCD_MAP_FLAG NOT IN ('Z') group by pao_ain,ddo_tan)UNION(select SSH_TGT_POPSP_REGNO as PAO_AIN,SSI_AUD_TRGT_DDO_TAN as ddo_tan ,count(SSH_PRAN) as PRAN_COUNT_MOVED_IN from  sub.sub_shift_int_aud,master.sub_tier_mst,sub.sub_shift,dash.pao_mst where  stm_pran=ssh_pran and stm_tier_type='T1'  and date(SSH_MDFD_TMSTMP) > '{from}'  and date(SSH_MDFD_TMSTMP)  <= '{to}'  and PAO_AIN=SSH_TGT_POPSP_REGNO   and SSH_SRC_POPSP_REGNO <>SSH_TGT_POPSP_REGNO  and SSH_STATUS in('C','1') and SSI_AUD_PRAN=ssh_pran and SSI_AUD_ACK_NO=SSH_ACK_NO group by  SSH_TGT_POPSP_REGNO,SSI_AUD_TRGT_DDO_TAN))A group by pao_ain, ddo_tan) D on  C.pao_ain = D.pao_ain and C.DDO_TAN=D.DDO_TAN left outer join (select  pao_ain,ddo_tan,SUM(PRAN_COUNT_MOVED_OUT) AS PRAN_COUNT_MOVED_OUT from((select  pao_ain,ddo_tan,count(*) as PRAN_COUNT_MOVED_OUT from pao.SUB_MAP_CHNG_DTL ,dash.pao_mst,master.ddo_mst where pao_id_pk=SMCD_PAO_ID_PRV and DDO_ID_PK=SMCD_DDO_ID_PRV and date(SMCD_CRTD_TMSTMP)  > '{from}'  and date(SMCD_CRTD_TMSTMP)  <= '{to}'  and SMCD_PAO_ID_CURR<>SMCD_PAO_ID_prv AND SMCD_MAP_FLAG NOT IN ('Z') group by SMCD_PAO_ID_PRV,SMCD_DDO_ID_PRV,ddo_tan, pao_ain) UNION (select SSH_SRC_POPSP_REGNO as PAO_AIN,SSI_AUD_SRC_DDO_TAN as ddo_tan,count(SSH_PRAN) as PRAN_COUNT_MOVED_OUT from sub.sub_shift_int_aud,master.sub_tier_mst,sub.sub_shift,dash.pao_mst where  stm_pran=ssh_pran and stm_tier_type='T1'  and date(SSH_MDFD_TMSTMP) > '{from}'  and date(SSH_MDFD_TMSTMP)  <= '{to}'  and PAO_AIN=SSH_SRC_POPSP_REGNO  and SSH_SRC_POPSP_REGNO <>SSH_TGT_POPSP_REGNO  and SSH_STATUS in('C','1') and SSI_AUD_PRAN =ssh_pran and SSI_AUD_ACK_NO=SSH_ACK_NO group by  SSH_TGT_POPSP_REGNO ,SSH_SRC_POPSP_REGNO,SSI_AUD_SRC_DDO_TAN))E group by pao_ain, ddo_tan) E on C.pao_ain=E.pao_ain and C.DDO_TAN=E.DDO_TAN) with ur;
+
+
+DELETE FROM DASH.DASH_SUB_REG WHERE DSR_PRAO_AIN IN (SELECT RDU_REG_NO FROM  MASTER.RPT_DUMMY_USRS WHERE RDU_ENTY_NM IN ('PrAO','POP') with ur);
+
+
+DELETE FROM DASH.DASH_SUB_REG_NONIRA;
+
+
+INSERT INTO DASH.DASH_SUB_REG_NONIRA (DSN_PRAN,DSN_PPAN,DSN_PAO_AIN,DSN_PAO_TYPE,DSN_PRAO_AIN ,DSN_DATA_GEN_DATE,DSN_SUB_FST_NAM,DSN_SUB_LST_NAM,DSN_CRTD_BY,DSN_CRTD_TMSTMP,DSN_SECTOR_TYP,DSN_GOVT_TYP,DSN_MODEL_CODE ) (SELECT SUB_PRAN,SEM_PPAN,PAO_AIN,PAO_TYPE,PRAO_AIN,'06/30/2025',substr (SUB_FST_NAM, 1,30) as SUB_FST_NAM ,SUB_LST_NAM,'ADMIN',CURRENT TIMESTAMP,SECTOR_CATEGORY,PAO_GOVT_TYPE,PRAO_MODEL_CODE FROM MASTER.SUB_MST, dash.PAO_MST,SUB.SUB_EMP,MASTER.DDO_MST,dash.PRAO_MST,MASTER.STATE_MODEL_MAP_MST WHERE SUB_LEGACY_FLAG = 'Y' AND SUB_STS = 'V' AND  SUB_PAO_ID = PAO_ID_PK  AND sem_pao_id=pao_id_pk and SEM_PRAN = SUB_PRAN AND SEM_DDO_ID = DDO_ID_PK AND DDO_PAO_ID_FK=PAO_ID_PK AND PAO_PRAO_ID_FK = PRAO_ID_PK AND (SUB_INACTVN_RSN_CD not in (1,2,3,4,5) or SUB_INACTVN_RSN_CD is null) AND PAO_GOVT_TYPE=GOVT_CODE_PK) WITH UR ;
+
+
+DELETE FROM DASH.DASH_SUB_REG_NONIRA WHERE DSN_PRAO_AIN IN (SELECT RDU_REG_NO FROM  MASTER.RPT_DUMMY_USRS WHERE RDU_ENTY_NM IN ('PrAO','POP') with ur);`,
+    };
+
+    function formatDate(date) {
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        return `${mm}/${dd}/${yyyy}`;
+    }
+
+    function formatDateDashFormat(date){
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getFirstOfMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth(), 1);
+    }
+
+    function getLastSaturdayBefore(date) {
+        const day = date.getDay();
+        const diff = (day >= 6) ? 0 : day + 1;
+        const saturday = new Date(date);
+        saturday.setDate(date.getDate() - diff);
+        return saturday;
+    }
+
+    function getLastDateOfPreviousMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth(), 0); // day 0 of current month = last day of previous month
+    }
+
+    function getFirstDateOfNextMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 1);
+    }
+
+    function getOrdinalSuffix(day) {
+        const j = day % 10, k = day % 100;
+        if (k === 11 || k === 12 || k === 13) return `${day}th`;
+        if (j === 1) return `${day}st`;
+        if (j === 2) return `${day}nd`;
+        if (j === 3) return `${day}rd`;
+        return `${day}th`;
+    }
+
+    function downloadReport() {
+        const code = document.querySelector('input[name="report"]:checked').value;
+        const selectedDateStr = document.getElementById("dateInput").value;
+
+        if (!selectedDateStr) {
+            alert("Please select a date.");
+            return;
+        }
+
+        const toDate = new Date(selectedDateStr);
+        let fromDate;
+
+        if (code === "201") {
+            const tentativeFrom = new Date(toDate);
+            tentativeFrom.setDate(toDate.getDate() - 7);
+
+            if (tentativeFrom.getMonth() === toDate.getMonth()) {
+            fromDate = tentativeFrom;
+            } else {
+            fromDate = getLastDateOfPreviousMonth(toDate);
+            }
+
+        } else if (code === "209") {
+            fromDate = new Date(toDate);
+            fromDate.setDate(toDate.getDate() - 7);
+
+        } else if (code === "303") {
+            fromDate = getFirstDateOfNextMonth(toDate);
+
+        } else if (code === "306") {
+            fromDate = getLastSaturdayBefore(toDate);
+        }
+
+        const formattedFrom = formatDate(fromDate);
+        const formattedTo = formatDate(toDate);
+        const formattedDashFrom = formatDateDashFormat(fromDate);
+        const formattedDashTo = formatDateDashFormat(toDate);
+
+        // console.log(formattedFrom +" "+ formattedTo +" "+formattedDashFrom+" "+formattedDashTo);
+
+        let content = scripts[code];
+        content = content.replaceAll("{from}", formattedFrom).replaceAll("{to}", formattedTo).replaceAll("{toDashFormat}", formattedDashTo).replaceAll("{fromDashFormat}", formattedDashFrom);
+        const day = toDate.getDate();
+        const month = toDate.toLocaleString('default', { month: 'long' });
+        const year = toDate.getFullYear();
+        const dayWithSuffix = getOrdinalSuffix(day);
+        const fileName = `${code}_Manual_Script_for_${dayWithSuffix}_${month}_${year}.txt`;
+        // console.log(fileName);
+        // console.log(content);
+
+
+        const blob = new Blob([content], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+  </script>
+</body>
+</html>
