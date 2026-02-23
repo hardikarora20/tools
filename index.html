@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta id="themeColor" name="theme-color" content="#0a0d14" />
+    <title>Tools Launcher</title>
+
+    <!-- Optional: keep if you use manifest -->
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <style>
+      :root {
+        --bg0: #05060a;
+        --bg1: #0a0d14;
+        --glass: rgba(24, 24, 30, 0.56);
+        --glass2: rgba(24, 24, 30, 0.38);
+        --stroke: rgba(255, 255, 255, 0.12);
+        --stroke2: rgba(255, 255, 255, 0.18);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.62);
+
+        --ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+        --ease2: cubic-bezier(0.16, 1, 0.3, 1);
+
+        /* accent gradients */
+        --blue1: rgba(10, 132, 255, 0.82);
+        --blue2: rgba(100, 210, 255, 0.56);
+        --purple1: rgba(191, 90, 242, 0.82);
+        --purple2: rgba(10, 132, 255, 0.56);
+        --teal1: rgba(100, 210, 255, 0.82);
+        --teal2: rgba(48, 209, 88, 0.52);
+        --green1: rgba(48, 209, 88, 0.82);
+        --green2: rgba(255, 214, 10, 0.52);
+        --orange1: rgba(255, 159, 10, 0.82);
+        --orange2: rgba(255, 55, 95, 0.5);
+        --yellow1: rgba(255, 214, 10, 0.82);
+        --yellow2: rgba(255, 159, 10, 0.55);
+        --pink1: rgba(255, 55, 95, 0.82);
+        --pink2: rgba(191, 90, 242, 0.56);
+
+        --shadowDock: 0 22px 80px rgba(0, 0, 0, 0.62);
+      }
+
+      /* LIGHT THEME */
+      html[data-theme="light"] {
+        --bg0: #f5f7fb;
+        --bg1: #eef2f8;
+        --glass: rgba(255, 255, 255, 0.72);
+        --glass2: rgba(255, 255, 255, 0.54);
+        --stroke: rgba(20, 20, 30, 0.12);
+        --stroke2: rgba(20, 20, 30, 0.18);
+        --text: rgba(10, 12, 16, 0.92);
+        --muted: rgba(10, 12, 16, 0.58);
+
+        --shadowDock: 0 18px 60px rgba(20, 20, 30, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Display",
+          "SF Pro Text", "Segoe UI", Roboto, Arial;
+        color: var(--text);
+        background: radial-gradient(
+            1000px 700px at 15% 20%,
+            rgba(10, 132, 255, 0.18),
+            transparent 55%
+          ),
+          radial-gradient(
+            900px 650px at 85% 25%,
+            rgba(191, 90, 242, 0.16),
+            transparent 55%
+          ),
+          radial-gradient(
+            1100px 650px at 55% 90%,
+            rgba(48, 209, 88, 0.1),
+            transparent 60%
+          ),
+          linear-gradient(180deg, var(--bg0), var(--bg1));
+        overflow-x: hidden;
+      }
+
+      .wallpaper {
+        position: fixed;
+        inset: -30%;
+        background: conic-gradient(
+          from 210deg,
+          rgba(255, 55, 95, 0.1),
+          rgba(10, 132, 255, 0.12),
+          rgba(191, 90, 242, 0.1),
+          rgba(48, 209, 88, 0.08),
+          rgba(255, 159, 10, 0.08),
+          rgba(255, 55, 95, 0.1)
+        );
+        filter: blur(60px);
+        opacity: 0.68;
+        animation: drift 16s var(--ease) infinite alternate;
+        pointer-events: none;
+        transform: translateZ(0);
+      }
+      html[data-theme="light"] .wallpaper {
+        opacity: 0.32;
+        filter: blur(70px);
+      }
+
+      @keyframes drift {
+        from {
+          transform: translate(-2%, -1%) scale(1.02);
+        }
+        to {
+          transform: translate(2%, 1%) scale(1.06);
+        }
+      }
+
+      body:before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+        mix-blend-mode: overlay;
+      }
+      html[data-theme="light"] body:before {
+        opacity: 0.03;
+        mix-blend-mode: multiply;
+      }
+
+      .wrap {
+        position: relative;
+        min-height: 100%;
+        padding: 24px 18px 118px; /* room for dock + credit */
+        display: grid;
+        place-items: start center;
+      }
+      .shell {
+        width: min(1000px, 96vw);
+      }
+
+      /* ===== Header: BIG search + tiny theme button ===== */
+      .headerBar {
+        position: sticky;
+        top: 14px;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        padding: 10px 0;
+      }
+      .headerInner {
+        width: min(920px, 96vw);
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+      }
+
+      /* Bigger / wider Spotlight */
+      .spotlight {
+        width: min(860px, 96vw);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 18px; /* bigger */
+        border-radius: 999px;
+        background: linear-gradient(180deg, var(--glass), var(--glass2));
+        border: 1px solid var(--stroke);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow: 0 14px 55px rgba(0, 0, 0, 0.3);
+        transition: box-shadow 0.25s var(--ease), border-color 0.25s var(--ease);
+      }
+      .spotlight:focus-within {
+        border-color: rgba(10, 132, 255, 0.4);
+        box-shadow: 0 0 0 6px rgba(10, 132, 255, 0.12),
+          0 18px 64px rgba(0, 0, 0, 0.38);
+      }
+      html[data-theme="light"] .spotlight:focus-within {
+        box-shadow: 0 0 0 6px rgba(10, 132, 255, 0.18),
+          0 18px 60px rgba(20, 20, 30, 0.16);
+      }
+
+      .s-icon {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        opacity: 0.7;
+        fill: none;
+        stroke-width: 2;
+        margin-left: 2px;
+        flex: 0 0 auto;
+      }
+      .spotlight input {
+        flex: 1;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 16px; /* bigger */
+        letter-spacing: 0.2px;
+        padding: 4px 2px;
+      }
+      .spotlight input::placeholder {
+        color: color-mix(in srgb, var(--muted) 75%, transparent);
+      }
+
+      .pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .kbd {
+        border: 1px solid var(--stroke);
+        background: rgba(0, 0, 0, 0.1);
+        padding: 3px 7px;
+        border-radius: 9px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      /* Tiny theme button floating on the right of the search */
+      .themeBtn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 38px;
+        height: 38px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid var(--stroke);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        transition: transform 0.18s var(--ease2), background 0.18s var(--ease),
+          border-color 0.18s var(--ease);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .themeBtn:hover {
+        transform: translateY(-50%) scale(1.06);
+        border-color: var(--stroke2);
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .themeBtn:active {
+        transform: translateY(-50%) scale(1.02);
+      }
+      .themeBtn svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+        opacity: 0.9;
+      }
+
+      /* Sections */
+      .toprow {
+        margin: 16px auto 12px;
+        width: min(860px, 96vw);
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 0 6px;
+      }
+      .toprow h2 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.28px;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--text) 78%, transparent);
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      /* 3 per row */
+      .grid {
+        width: min(860px, 96vw);
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        align-items: stretch;
+      }
+      @media (max-width: 720px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 460px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Tile */
+      a.app {
+        position: relative;
+        display: grid;
+        grid-template-rows: auto auto;
+        justify-items: center;
+        gap: 10px;
+        padding: 18px 14px 16px;
+        border-radius: 22px;
+        text-decoration: none;
+        color: var(--text);
+        background: color-mix(in srgb, var(--glass2) 35%, transparent);
+        border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: transform 0.22s var(--ease2), border-color 0.22s var(--ease),
+          background 0.22s var(--ease), box-shadow 0.22s var(--ease2),
+          filter 0.22s var(--ease);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+        overflow: hidden;
+        transform: translateZ(0);
+        outline: none;
+        will-change: transform, box-shadow;
+      }
+      a.app:after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          transparent,
+          rgba(255, 255, 255, 0.11),
+          transparent
+        );
+        transform: translateX(-120%);
+        transition: transform 0.75s var(--ease);
+        opacity: 0.3;
+        pointer-events: none;
+      }
+      a.app:hover {
+        transform: translateY(-5px) scale(1.01);
+        border-color: var(--stroke2);
+        background: color-mix(in srgb, var(--glass2) 55%, transparent);
+        box-shadow: 0 22px 64px rgba(0, 0, 0, 0.42);
+        filter: saturate(1.05);
+      }
+      html[data-theme="light"] a.app:hover {
+        box-shadow: 0 22px 64px rgba(20, 20, 30, 0.18);
+      }
+      a.app:hover:after {
+        transform: translateX(120%);
+      }
+      a.app:active {
+        transform: translateY(-2px) scale(1.005);
+      }
+      a.app:focus-visible {
+        box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.18),
+          0 22px 64px rgba(0, 0, 0, 0.42);
+        border-color: rgba(10, 132, 255, 0.35);
+      }
+
+      /* Icon */
+      .icon {
+        width: 66px;
+        height: 66px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        position: relative;
+        transition: transform 0.25s var(--ease2), filter 0.25s var(--ease);
+        will-change: transform;
+      }
+      html[data-theme="light"] .icon {
+        box-shadow: 0 18px 45px rgba(20, 20, 30, 0.14);
+        border-color: rgba(10, 12, 16, 0.12);
+      }
+      .icon:before {
+        content: "";
+        position: absolute;
+        inset: -35%;
+        background: radial-gradient(
+            circle at 30% 20%,
+            rgba(255, 255, 255, 0.22),
+            transparent 38%
+          ),
+          radial-gradient(
+            circle at 70% 80%,
+            rgba(0, 0, 0, 0.22),
+            transparent 42%
+          );
+        filter: blur(6px);
+        opacity: 0.9;
+        pointer-events: none;
+      }
+      .glyph {
+        width: 28px;
+        height: 28px;
+        fill: rgba(255, 255, 255, 0.92);
+        opacity: 0.97;
+        z-index: 1;
+        filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+      }
+
+      /* Bounce animation */
+      @keyframes iconBounce {
+        0% {
+          transform: translateY(0) scale(1);
+        }
+        35% {
+          transform: translateY(-4px) scale(1.1);
+        }
+        70% {
+          transform: translateY(1px) scale(1.04);
+        }
+        100% {
+          transform: translateY(0) scale(1.06);
+        }
+      }
+      a.app .icon {
+        animation: none;
+      }
+      a.app:hover .icon {
+        animation: iconBounce 0.48s var(--ease2);
+        transform: translateY(-2px) scale(1.06);
+        filter: saturate(1.05);
+      }
+
+      .label {
+        text-align: center;
+        display: grid;
+        gap: 3px;
+        width: 100%;
+        min-width: 0;
+      }
+      .label b {
+        font-size: 13px;
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .label span {
+        font-size: 11px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Dock */
+      .dockWrap {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 16px;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+        z-index: 20;
+      }
+      .dock {
+        pointer-events: auto;
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        padding: 10px 12px;
+        border-radius: 22px;
+        background: linear-gradient(180deg, var(--glass), var(--glass2));
+        border: 1px solid var(--stroke);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow: var(--shadowDock);
+      }
+      .dockBtn {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+        border: 1px solid var(--stroke);
+        background: rgba(255, 255, 255, 0.06);
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        transition: transform 0.18s var(--ease2), background 0.18s var(--ease),
+          border-color 0.18s var(--ease);
+        position: relative;
+        outline: none;
+        color: var(--text);
+      }
+      .dockBtn:hover {
+        transform: translateY(-7px) scale(1.07);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--stroke2);
+      }
+      .dockBtn svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+        opacity: 0.88;
+      }
+
+      .tooltip {
+        position: absolute;
+        bottom: 56px;
+        left: 50%;
+        transform: translateX(-50%) translateY(6px);
+        background: color-mix(in srgb, var(--glass) 85%, rgba(0, 0, 0, 0.2));
+        border: 1px solid var(--stroke);
+        padding: 6px 10px;
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 11px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.14s var(--ease), transform 0.14s var(--ease);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+      }
+      .dockBtn:hover .tooltip {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* Small credit label */
+      .credit {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 78px; /* sits above dock */
+        font-size: 12px;
+        letter-spacing: 0.25px;
+        color: color-mix(in srgb, var(--muted) 85%, transparent);
+        opacity: 0.85;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--glass2) 40%, transparent);
+        border: 1px solid color-mix(in srgb, var(--stroke) 70%, transparent);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        pointer-events: none; /* doesn’t block clicks */
+        user-select: none;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .wallpaper {
+          animation: none;
+        }
+        a.app,
+        a.app:after,
+        .dockBtn,
+        .spotlight,
+        .icon,
+        .themeBtn {
+          transition: none;
+          animation: none;
+        }
+      }
+
+      .footer {
+        width: min(860px, 96vw);
+        margin: 26px auto 0;
+        padding: 16px 6px 0;
+        text-align: center;
+
+        font-size: 12px;
+        letter-spacing: 0.25px;
+        color: color-mix(in srgb, var(--muted) 82%, transparent);
+
+        /* subtle divider */
+        border-top: 1px solid color-mix(in srgb, var(--stroke) 60%, transparent);
+      }
+
+      .footer b {
+        color: color-mix(in srgb, var(--text) 78%, transparent);
+        font-weight: 700;
+      }
+
+      .wrap {
+        padding: 24px 18px 118px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wallpaper" aria-hidden="true"></div>
+
+    <div class="wrap">
+      <div class="shell">
+        <!-- Header: BIG search + tiny theme icon -->
+        <div class="headerBar">
+          <div class="headerInner">
+            <div class="spotlight" role="search" aria-label="Search tools">
+              <svg class="s-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 21l-4.3-4.3m1.3-5.2a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                id="q"
+                placeholder="Search tools… (just start typing)"
+                autocomplete="off"
+              />
+              <div class="pill">
+                <span id="count">0</span>
+                <span class="kbd">⌘/Ctrl</span><span class="kbd">K</span>
+              </div>
+
+              <button
+                class="themeBtn"
+                id="themeToggle"
+                type="button"
+                aria-label="Toggle theme"
+              >
+                <svg
+                  id="themeIcon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                ></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Favorites -->
+        <div class="toprow">
+          <h2>Favorites</h2>
+          <div class="sub">Pinned: CPW · Dashboard · Bucketing</div>
+        </div>
+        <section class="grid" id="favGrid" aria-label="Favorites"></section>
+
+        <!-- All tools -->
+
+        <div class="toprow" style="margin-top: 18px">
+          <h2>All Tools</h2>
+          <div class="sub">Type to search · Enter opens the first match</div>
+        </div>
+
+        <main class="grid" id="grid" aria-label="Tools list"></main>
+
+        <footer class="footer">made by <b>hardik</b> :3</footer>
+      </div>
+    </div>
+    <!-- Dock -->
+    <div class="dockWrap">
+      <div class="dock">
+        <button class="dockBtn" id="focusSearch" title="Search">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M21 21l-4.3-4.3a8 8 0 10-1.4 1.4L21 21zM4 10a6 6 0 1112 0A6 6 0 014 10z"
+            />
+          </svg>
+          <div class="tooltip">Search (Ctrl/⌘ K)</div>
+        </button>
+
+        <button class="dockBtn" id="openFirst" title="Open first match">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <div class="tooltip">Open first result (Enter)</div>
+        </button>
+
+        <button class="dockBtn" id="clear" title="Clear">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M18.3 5.7a1 1 0 010 1.4L13.4 12l4.9 4.9a1 1 0 01-1.4 1.4L12 13.4l-4.9 4.9a1 1 0 01-1.4-1.4l4.9-4.9-4.9-4.9a1 1 0 011.4-1.4l4.9 4.9 4.9-4.9a1 1 0 011.4 0z"
+            />
+          </svg>
+          <div class="tooltip">Clear search (Esc)</div>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // ========= Tools list =========
+      const tools = [
+        {
+          key: "wacverification",
+          name: "WAC Verification",
+          href: "wacverification/index.html",
+          subtitle: "Verify WAC file",
+          color: "pink",
+          favorite: false,
+          icon: "verify",
+        },
+        {
+          key: "replace",
+          name: "Replace Text",
+          href: "replace/index.html",
+          subtitle: "Find & replace text",
+          color: "orange",
+          favorite: false,
+          icon: "replace",
+        },
+        {
+          key: "clean",
+          name: "Clean Text File",
+          href: "clean/index.html",
+          subtitle: "Clean/normalize text file",
+          color: "yellow",
+          favorite: false,
+          icon: "broom",
+        },
+        {
+          key: "isolation",
+          name: "Isolation Test",
+          href: "isolation/index.html",
+          subtitle: "Isolation testing utility",
+          color: "teal",
+          favorite: false,
+          icon: "shield",
+        },
+        {
+          key: "cpwwithrca",
+          name: "Conditional Withdrawal (RCA)",
+          href: "cpwwithrca/index.html",
+          subtitle: "Conditional withdrawal script",
+          color: "purple",
+          favorite: true,
+          icon: "doccheck",
+        },
+        {
+          key: "dashboard",
+          name: "Dashboard",
+          href: "dashboard/index.html",
+          subtitle: "Dashboard scripts",
+          color: "blue",
+          favorite: true,
+          icon: "dashboard",
+        },
+        {
+          key: "bucketempempr",
+          name: "Employee/Employer Bucketing",
+          href: "bucketempempr/index.html",
+          subtitle: "Employee & employer bucketing",
+          color: "green",
+          favorite: true,
+          icon: "layers",
+        },
+      ];
+
+      const gradients = {
+        blue: ["var(--blue1)", "var(--blue2)"],
+        purple: ["var(--purple1)", "var(--purple2)"],
+        teal: ["var(--teal1)", "var(--teal2)"],
+        green: ["var(--green1)", "var(--green2)"],
+        orange: ["var(--orange1)", "var(--orange2)"],
+        yellow: ["var(--yellow1)", "var(--yellow2)"],
+        pink: ["var(--pink1)", "var(--pink2)"],
+      };
+
+      const q = document.getElementById("q");
+      const grid = document.getElementById("grid");
+      const favGrid = document.getElementById("favGrid");
+      const count = document.getElementById("count");
+
+      // Theme
+      const htmlEl = document.documentElement;
+      const themeIcon = document.getElementById("themeIcon");
+      const themeColorMeta = document.getElementById("themeColor");
+
+      const sunSVG = `<path d="M12 17a5 5 0 100-10 5 5 0 000 10zm0-14a1 1 0 011 1v1a1 1 0 01-2 0V4a1 1 0 011-1zm0 16a1 1 0 011 1v1a1 1 0 01-2 0v-1a1 1 0 011-1zM4 11a1 1 0 011-1h1a1 1 0 010 2H5a1 1 0 01-1-1zm14 0a1 1 0 011-1h1a1 1 0 010 2h-1a1 1 0 01-1-1zM6.3 6.3a1 1 0 011.4 0l.7.7a1 1 0 01-1.4 1.4l-.7-.7a1 1 0 010-1.4zm10 10a1 1 0 011.4 0l.7.7a1 1 0 01-1.4 1.4l-.7-.7a1 1 0 010-1.4zM17.7 6.3a1 1 0 010 1.4l-.7.7a1 1 0 11-1.4-1.4l.7-.7a1 1 0 011.4 0zM8.4 15.6a1 1 0 010 1.4l-.7.7a1 1 0 11-1.4-1.4l.7-.7a1 1 0 011.4 0z"/>`;
+      const moonSVG = `<path d="M21 14.5A7.5 7.5 0 1110.5 3a6 6 0 0010.5 11.5z"/>`;
+
+      function setTheme(theme) {
+        htmlEl.dataset.theme = theme;
+        const isLight = theme === "light";
+        // Show icon representing current mode (so it feels consistent)
+        themeIcon.innerHTML = isLight ? sunSVG : moonSVG;
+        themeColorMeta.setAttribute("content", isLight ? "#eef2f8" : "#0a0d14");
+        localStorage.setItem("theme", theme);
+      }
+      const savedTheme = localStorage.getItem("theme");
+      setTheme(savedTheme === "light" ? "light" : "dark"); // default dark
+
+      function toggleTheme() {
+        setTheme(
+          (htmlEl.dataset.theme || "dark") === "dark" ? "light" : "dark"
+        );
+      }
+      document
+        .getElementById("themeToggle")
+        .addEventListener("click", toggleTheme);
+
+      function escapeHtml(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#039;",
+            }[m])
+        );
+      }
+
+      function iconSVG(kind) {
+        const common = `class="glyph" viewBox="0 0 24 24" aria-hidden="true"`;
+        switch (kind) {
+          case "dashboard":
+            return `<svg ${common}><path d="M4 4h7v9H4V4zm9 0h7v5h-7V4zM13 11h7v9h-7v-9zM4 15h7v5H4v-5z"/></svg>`;
+          case "layers":
+            return `<svg ${common}><path d="M12 3l9 5-9 5-9-5 9-5zm0 11l7.5-4.2L21 11l-9 5-9-5 1.5-1.2L12 14zm0 5l7.5-4.2L21 16l-9 5-9-5 1.5-1.2L12 19z"/></svg>`;
+          case "replace":
+            return `<svg ${common}><path d="M7 7h10l-2-2 1.4-1.4L21.8 9l-5.4 5.4L15 13l2-2H7V7zm10 10H7l2 2-1.4 1.4L2.2 15l5.4-5.4L9 11l-2 2h10v4z"/></svg>`;
+          case "shield":
+            return `<svg ${common}><path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4zm0 4.2L6 8v4c0 3.8 2.3 7.1 6 7.8 3.7-.7 6-4 6-7.8V8l-6-1.8z"/></svg>`;
+          case "doccheck":
+            return `<svg ${common}><path d="M7 2h7l5 5v13a2 2 0 01-2 2H7a2 2 0 01-2-2V4a2 2 0 012-2zm7 1.5V8h4.5L14 3.5zM10.2 15.2l-1.4-1.4L7.4 15.2l2.8 2.8 6-6-1.4-1.4-4.6 4.6z"/></svg>`;
+          case "broom":
+            return `<svg ${common}><path d="M14 3l7 7-2 2-7-7 2-2zM3 20c2.5 1 5.3.4 7.2-1.5l6.4-6.4-3.5-3.5-6.4 6.4C4.8 16.9 4 18.4 3 20zm4.9-3.6l5.7-5.7 1.4 1.4-5.7 5.7c-1.1 1.1-2.8 1.6-4.3 1.2.4-1.5.9-3.2 1.9-4.2z"/></svg>`;
+          case "verify":
+            return `<svg ${common}><path d="M12 22a10 10 0 110-20 10 10 0 010 20z" opacity="0.5"></path><path d="M10.2 13.9l-1.7-1.7-1.4 1.4 3.1 3.1 6.4-6.4-1.4-1.4-5 5z" opacity="1"/>  </svg>`;
+          default:
+            return `<svg ${common}><path d="M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>`;
+        }
+      }
+
+      function makeCard(t) {
+        const [c1, c2] = gradients[t.color] || gradients.blue;
+        const href = encodeURI(t.href);
+        const title = escapeHtml(t.name);
+        const sub = escapeHtml(t.subtitle || t.href);
+
+        return `
+        <a class="app" href="${href}">
+          <div class="icon" style="
+            background:
+              radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.22), transparent 60%),
+              linear-gradient(135deg, ${c1}, ${c2});
+          ">
+            ${iconSVG(t.icon)}
+          </div>
+          <div class="label">
+            <b>${title}</b>
+            <span>${sub}</span>
+          </div>
+        </a>
+      `;
+      }
+
+      function matches(t, term) {
+        return (
+          t.name.toLowerCase().includes(term) ||
+          (t.subtitle || "").toLowerCase().includes(term) ||
+          t.href.toLowerCase().includes(term) ||
+          (t.key || "").toLowerCase().includes(term)
+        );
+      }
+
+      let lastFiltered = [];
+
+      function render() {
+        const term = q.value.trim().toLowerCase();
+        lastFiltered = tools.filter((t) => matches(t, term));
+        const favs = tools
+          .filter((t) => t.favorite)
+          .filter((t) => matches(t, term));
+
+        favGrid.innerHTML = favs.map(makeCard).join("");
+        grid.innerHTML = lastFiltered.map(makeCard).join("");
+        count.textContent = lastFiltered.length;
+      }
+
+      function openFirst() {
+        const first = lastFiltered[0];
+        if (!first) return;
+        window.location.href = encodeURI(first.href);
+      }
+
+      // Dock actions
+      document
+        .getElementById("focusSearch")
+        .addEventListener("click", () => q.focus());
+      document.getElementById("clear").addEventListener("click", () => {
+        q.value = "";
+        render();
+        q.focus();
+      });
+      document.getElementById("openFirst").addEventListener("click", openFirst);
+
+      // Global keyboard
+      window.addEventListener("keydown", (e) => {
+        const isMac = navigator.platform.toUpperCase().includes("MAC");
+        const mod = isMac ? e.metaKey : e.ctrlKey;
+
+        if (mod && e.key.toLowerCase() === "k") {
+          e.preventDefault();
+          q.focus();
+          return;
+        }
+
+        if (e.key === "Escape") {
+          q.value = "";
+          render();
+          q.blur();
+          return;
+        }
+
+        if (e.key === "Enter" && document.activeElement === q) {
+          e.preventDefault();
+          openFirst();
+          return;
+        }
+
+        // Type-to-search anywhere (fixed: prevents double typing)
+        const tag = (document.activeElement?.tagName || "").toLowerCase();
+        const inTypingField =
+          tag === "input" ||
+          tag === "textarea" ||
+          document.activeElement?.isContentEditable;
+
+        if (!inTypingField && !mod && !e.altKey) {
+          if (e.key.length === 1) {
+            e.preventDefault();
+            q.focus();
+            q.value += e.key;
+            render();
+            return;
+          }
+          if (e.key === "Backspace") {
+            e.preventDefault();
+            q.focus();
+            q.value = q.value.slice(0, -1);
+            render();
+            return;
+          }
+        }
+      });
+
+      q.addEventListener("input", render);
+
+      render();
+
+      // Optional: service worker registration (only works over http/https)
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      }
+    </script>
+  </body>
+</html>
+``
