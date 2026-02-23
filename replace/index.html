@@ -1,1 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Replace list</title>
+  <style>
+    body {
+      background: #1e1f22;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #ddd;
+    }
+    .container-container{
+      display: flex;
+      gap: 10px;
+    }
+    .container {
+      background: #2b2d31;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      width: 400px;
+      z-index: 99;
+      animation: fadeIn 0.6s forwards;
+    }
+    textarea {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      padding: 12px;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #eee;
+      box-sizing: border-box;
+      resize: vertical;
+      outline: none;
+      z-index:150;
+    }
+    #output{
+      height: 100% !important;
+      width: 100% !important;
+    }
+    button {
+      /* margin-top: 15px; */
+      width: 100%;
+      padding: 14px;
+      background: #8ecae6;
+      border: none;
+      border-radius: 8px;
+      color: #1e1f22;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #9fd4ed;
+    }
+    .button-group{
+      margin-block: 5px;
+      display: flex;
+      gap: 10px;
+      /* background-color: red; */
+      width: 100%;
+      height: max-content;
+      align-items: center;
+      justify-content: center;
+      align-content: center;
+    }
+    #element1, #element2, #element3{
+        background-color: #8ecae6;
+        display: block;
+        position: fixed;
+        width: 0vw;
+        height: 0vw;
+        z-index: 99;
+        border-radius: 100%;
+        transition: all 1s;
+        z-index: 50;
+    }
+    #element1{
+        background-color: #8ecae6;
+        z-index: 50;
+        margin-top: 15%;
+    }
+    @keyframes changeSize {
+        0%{
+            width: 0vw;
+            height: 0vw;
+            opacity: 1;
+        }
+        80%{
+            width: 150vw;
+            height: 150vw;
+        }
+        100%{
+            width: 200vw;
+            height: 200vw;
+            opacity: 0;
+        }
+    }
 
+    @keyframes fadeIn {
+        0%{
+            opacity: 0;
+        }
+        100%{
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        0%{
+            opacity: 1;
+        }
+        100%{
+            opacity: 0;
+        }
+    }
+    
+    .input-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #eee;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-container">
+
+    <div class="container">
+      <div class="input-group">
+        <label for="list-label">List items</label>
+      <input type="text" id="list" placeholder="Enter list items separated by commas">
+    </div>
+    <div class="input-group">
+      <label for="template-label">Template text</label>
+      <textarea placeholder="Enter template text here" id="template"></textarea>
+    </div>
+    <div class="input-group">
+      <label for="replaceitem-label">Replace</label>
+      <input type="text" id="replaceitem" placeholder="What to replace (enter exact value)">
+    </div>
+    <div class="button-group">
+      <button id="generate">Generate</button>
+      <button id="download">Download</button>
+    </div>
+  </div>
+    <div class="container">
+      <textarea placeholder="Output" id="output"></textarea>
+    </div>
+</div>
+  <script>
+
+    var list = [];
+    var template = ``;
+    var replaceItem = ``;
+    function readData(){
+        const listElement = document.getElementById("list").value;
+        list = listElement.split(",").map(item => item.trim());
+        template = document.getElementById("template").value;
+        replaceItem = document.getElementById("replaceitem").value;
+    }
+
+    function fileName(){
+        const advent = document.getElementById('advent').value;
+        if(advent == null)
+            advent = "";
+        return "db2_script_" + advent;
+    }
+
+    function removeSQLCABlocks(text) {
+      const regex = /SQLCA Information[\s\S]*?sqlstate:.*?(\r?\n|$)/g;
+      return text.replace(regex, '');
+    }
+
+    function replaceInTemplate(temp, repl, val){
+      var replaced = temp.replaceAll(repl, val);
+      replaced += "\n\n";
+      return removeSQLCABlocks(replaced);
+    }
+    
+    document.getElementById('generate').addEventListener('click', function () {
+      document.getElementById("output").value = "";
+      readData();
+      console.log(list);
+      console.log(template);
+      console.log(replaceItem);
+      for(var i = 0; i < list.length; i++){
+        const currText = replaceInTemplate(template, replaceItem, list[i]);
+        document.getElementById("output").value += currText;
+      }
+
+    })
+
+    document.getElementById('download').addEventListener('click', function () {
+        for(var i = 0; i < list.length; i++){
+          const cleanedText = replaceInTemplate(template, replaceItem, list[i]);
+          const blob = new Blob([cleanedText], { type: 'text/plain' });
+          cleanedBlobUrl = URL.createObjectURL(blob);
+  
+          const link = document.createElement('a');
+          link.href = cleanedBlobUrl;
+          link.download = list[i];
+          link.click();
+        }     
+    });
+  </script>
+
+</body>
+</html>
