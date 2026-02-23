@@ -1,1 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WAC Verification</title>
 
+    <style>
+      /* =========================
+       Windows 11 / Material Dark (Glassy) — Darker Accent
+       ========================= */
+      :root {
+        /* Single primary accent shade (darker) */
+        --accent: #2563eb; /* deep cobalt */
+        --accent-rgb: 37, 99, 235; /* rgb for rgba() */
+
+        /* Dark slate palette */
+        --bg0: #0b1214;
+        --bg1: #101a1d;
+        --bg2: #0f171a;
+
+        --text: #eaf2ff;
+        --muted: rgba(234, 242, 255, 0.68);
+
+        /* Glass + borders */
+        --glass: rgba(19, 27, 31, 0.58);
+        --glass-strong: rgba(19, 27, 31, 0.72);
+        --border: rgba(255, 255, 255, 0.1);
+        --border-strong: rgba(255, 255, 255, 0.16);
+
+        --shadow1: 0 18px 40px rgba(0, 0, 0, 0.45);
+        --shadow2: 0 8px 18px rgba(0, 0, 0, 0.32);
+
+        --good: #32d583;
+        --bad: #ff5b5b;
+        --warn: #f7b731;
+
+        --radius-lg: 18px;
+        --radius-md: 14px;
+        --radius-sm: 12px;
+
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        --sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system,
+          Roboto, Helvetica, Arial;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--text);
+        background: radial-gradient(
+            1200px 700px at 18% -10%,
+            rgba(var(--accent-rgb), 0.22),
+            transparent 55%
+          ),
+          radial-gradient(
+            1000px 600px at 92% 10%,
+            rgba(var(--accent-rgb), 0.14),
+            transparent 55%
+          ),
+          linear-gradient(140deg, var(--bg0), var(--bg1) 42%, var(--bg2));
+        overflow-x: hidden;
+      }
+
+      /* Subtle noise overlay (Win11 acrylic depth) */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+        mix-blend-mode: overlay;
+        opacity: 0.1;
+      }
+
+      .wrap {
+        max-width: 1160px;
+        margin: 26px auto;
+        padding: 0 16px 26px;
+      }
+
+      /* App bar */
+      .appbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 14px 16px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: var(--shadow2);
+        position: sticky;
+        top: 14px;
+        z-index: 2;
+      }
+
+      .title {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+      }
+
+      .title h1 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: 0.2px;
+        font-weight: 720;
+      }
+      .title span {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(var(--accent-rgb), 0.28);
+        background: rgba(var(--accent-rgb), 0.1);
+        color: rgba(234, 242, 255, 0.92);
+        font-size: 12px;
+        user-select: none;
+        white-space: nowrap;
+      }
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+      }
+
+      .grid {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      @media (min-width: 980px) {
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .card {
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.03)
+        );
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: var(--shadow1);
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Glass highlight edge */
+      .card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background: radial-gradient(
+          900px 240px at 15% 0%,
+          rgba(var(--accent-rgb), 0.14),
+          transparent 55%
+        );
+        opacity: 0.85;
+      }
+
+      .card-inner {
+        position: relative;
+        padding: 16px;
+        z-index: 1;
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 14px;
+        letter-spacing: 0.25px;
+        font-weight: 700;
+        color: rgba(234, 242, 255, 0.95);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .chip {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 10px 0 6px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      @media (min-width: 520px) {
+        .row {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      input,
+      textarea,
+      button,
+      select {
+        width: 100%;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.11);
+        background: rgba(10, 15, 18, 0.55);
+        color: var(--text);
+        padding: 10px 12px;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease,
+          transform 0.1s ease, background 0.15s ease;
+      }
+
+      textarea {
+        min-height: 122px;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.35;
+        resize: vertical;
+      }
+
+      input[type="date"] {
+        padding: 9px 12px;
+      }
+      input[type="number"] {
+        font-family: var(--mono);
+      }
+      select {
+        cursor: pointer;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: rgba(var(--accent-rgb), 0.55);
+        box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.18),
+          0 12px 20px rgba(0, 0, 0, 0.25) inset;
+        background: rgba(10, 15, 18, 0.62);
+      }
+
+      .btn {
+        border: 1px solid rgba(var(--accent-rgb), 0.34);
+        background: linear-gradient(
+          135deg,
+          rgba(var(--accent-rgb), 0.92),
+          rgba(var(--accent-rgb), 0.7)
+        );
+        font-weight: 750;
+        cursor: pointer;
+        margin-top: 12px;
+        box-shadow: 0 12px 26px rgba(var(--accent-rgb), 0.16);
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+      .btn:active {
+        transform: translateY(0px) scale(0.99);
+      }
+
+      .btn.secondary {
+        margin-top: 0;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: none;
+        font-weight: 650;
+      }
+      .btn.secondary:hover {
+        border-color: rgba(var(--accent-rgb), 0.32);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .mini {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .mini button {
+        width: auto;
+        padding: 9px 10px;
+        font-size: 12px;
+        border-radius: 999px;
+      }
+
+      .hint {
+        margin: 10px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .status {
+        margin-top: 10px;
+        min-height: 26px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      .pill.good {
+        border-color: rgba(50, 213, 131, 0.28);
+        color: var(--good);
+      }
+      .pill.bad {
+        border-color: rgba(255, 91, 91, 0.28);
+        color: var(--bad);
+      }
+      .pill.warn {
+        border-color: rgba(247, 183, 49, 0.28);
+        color: var(--warn);
+      }
+
+      .kv {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      @media (min-width: 520px) {
+        .kv {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .kv div {
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(10, 15, 18, 0.45);
+        padding: 11px 12px;
+      }
+      .kv b {
+        display: block;
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 4px;
+        font-weight: 650;
+      }
+      .kv span {
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 12px 0 4px;
+      }
+
+      .footer-note {
+        text-align: center;
+        color: rgba(234, 242, 255, 0.55);
+        font-size: 12px;
+        margin-top: 16px;
+      }
+
+      textarea[readonly] {
+        background: rgba(10, 15, 18, 0.4);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(234, 242, 255, 0.9);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <div class="appbar">
+        <div class="title">
+          <h1>WAC Verification</h1>
+          <span
+            >Generate DB2 script + parse output + draft mail (Q2 on LITE DB,
+            others on CRA DB)</span
+          >
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- Inputs + Script -->
+        <section class="card">
+          <div class="card-inner">
+            <h2>
+              1) Inputs & Script Generator
+              <span class="chip">Auto header parse</span>
+            </h2>
+
+            <div class="row">
+              <div>
+                <label
+                  >Extraction Date (auto-filled from
+                  &lt;Execution-date&gt;)</label
+                >
+                <input id="extractionDate" type="date" />
+              </div>
+              <div>
+                <label
+                  >Unit Redemption Date (auto-filled = Extraction Date)</label
+                >
+                <input id="unitRedmpDate" type="date" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label
+                  >Residual Amount (auto-filled from &lt;residue-amt&gt;)</label
+                >
+                <input
+                  id="residualAmt"
+                  type="number"
+                  step="0.01"
+                  placeholder="e.g., -32153.62"
+                />
+              </div>
+              <div>
+                <label>Query date format</label>
+                <select id="dateFormat">
+                  <option value="MM-DD-YYYY" selected>MM-DD-YYYY</option>
+                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Comparison tolerance (₹) (default 0)</label>
+                <input id="tolerance" type="number" step="0.01" value="0" />
+              </div>
+              <div></div>
+            </div>
+
+            <label
+              >Paste File Header (supports &amp;lt; &amp;gt; escaped XML)</label
+            >
+            <textarea
+              id="fileHeader"
+              placeholder="Paste file header lines here..."
+            ></textarea>
+
+            <button class="btn" id="genScriptBtn">Generate DB2 Script</button>
+
+            <div class="mini">
+              <button class="btn secondary" id="copyScriptBtn">
+                Copy Script
+              </button>
+              <button class="btn secondary" id="clearBtn">Clear All</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <label>Generated DB2 Script</label>
+            <textarea id="scriptOut" readonly></textarea>
+
+            <p class="hint">
+              Tip: Q2 runs on <b>LITE DB</b>. Q1/Q3/Q4/Q5 run on <b>CRA DB</b>.
+            </p>
+          </div>
+        </section>
+
+        <!-- Paste DB2 output + Mail -->
+        <section class="card">
+          <div class="card-inner">
+            <h2>
+              2) Paste DB2 Output & Generate Mail
+              <span class="chip">Parser + calc</span>
+            </h2>
+
+            <label>Paste DB2 outputs for all 5 queries (Q1→Q5 in order)</label>
+            <textarea
+              id="db2Out"
+              placeholder="Paste DB2 output here..."
+            ></textarea>
+
+            <button class="btn" id="parseBtn">
+              Parse Outputs + Generate Mail
+            </button>
+
+            <div id="statusLine" class="status"></div>
+
+            <div class="kv" id="calcBox" style="display: none">
+              <div><b>Query 1 sum (CRA DB)</b><span id="q1v"></span></div>
+              <div><b>Query 2 sum (LITE DB)</b><span id="q2v"></span></div>
+              <div><b>Query 3 sum (CRA DB)</b><span id="q3v"></span></div>
+              <div><b>Query 4 sum (CRA DB)</b><span id="q4v"></span></div>
+              <div><b>Query 5 sum (CRA DB)</b><span id="q5v"></span></div>
+
+              <div><b>calc1 = q1 - q2</b><span id="c1v"></span></div>
+              <div><b>calc2 = q4 - q5</b><span id="c2v"></span></div>
+              <div><b>calc3 = calc1 - calc2</b><span id="c3v"></span></div>
+              <div><b>Residual Amt (header)</b><span id="rav"></span></div>
+            </div>
+
+            <div class="mini">
+              <button class="btn secondary" id="copyMailBtn">Copy Mail</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <label>Generated Mail Draft</label>
+            <textarea id="mailOut" readonly></textarea>
+
+            <p class="hint">
+              Mail includes full DB2 command text + sums + bracketed “a - (-b)”
+              formatting.
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      const autoState = {
+        extractionAuto: true,
+        unitAuto: true,
+        residualAuto: true,
+      };
+
+      function setStatus(text, type) {
+        const el = $("statusLine");
+        const cls = type === "good" ? "good" : type === "bad" ? "bad" : "warn";
+        el.innerHTML = `<span class="pill ${cls}">${text}</span>`;
+      }
+
+      function copyToClipboard(text) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            setStatus("Copied to clipboard", "good");
+            setTimeout(() => ($("statusLine").innerHTML = ""), 1500);
+          })
+          .catch(() => setStatus("Copy failed. Use Ctrl+C.", "warn"));
+      }
+
+      function round2(n) {
+        return Math.round((n + Number.EPSILON) * 100) / 100;
+      }
+      function formatMoney(n) {
+        return Number.isFinite(n) ? round2(n).toFixed(2) : "";
+      }
+
+      function isoToQueryDate(iso, fmt) {
+        if (!iso) return "";
+        const [y, m, d] = iso.split("-");
+        return fmt === "MM/DD/YYYY" ? `${m}/${d}/${y}` : `${m}-${d}-${y}`;
+      }
+
+      function decodeAngleBrackets(text) {
+        return (text || "").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+      }
+
+      function ddmmyy_to_iso(s) {
+        const m = String(s)
+          .trim()
+          .match(/^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/);
+        if (!m) return null;
+        const dd = Number(m[1]);
+        const mm = Number(m[2]);
+        const yy = m[3];
+
+        let yyyy = Number(yy);
+        if (yy.length === 2) {
+          const two = Number(yy);
+          yyyy = two <= 69 ? 2000 + two : 1900 + two;
+        }
+        return `${String(yyyy).padStart(4, "0")}-${String(mm).padStart(
+          2,
+          "0"
+        )}-${String(dd).padStart(2, "0")}`;
+      }
+
+      function parseMoney(raw) {
+        if (raw == null) return null;
+        const n = Number(String(raw).replace(/,/g, "").trim());
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function parseHeaderForFields(headerText) {
+        const t = decodeAngleBrackets(headerText);
+        const exec = t.match(
+          /<Execution-date>\s*([^<]+)\s*<\/Execution-date>/i
+        )?.[1];
+        const residue = t.match(
+          /<residue-amt>\s*([^<]+)\s*<\/residue-amt>/i
+        )?.[1];
+        const extractionIso = exec ? ddmmyy_to_iso(exec) : null;
+        const residualAmt = parseMoney(residue);
+        return { extractionIso, residualAmt };
+      }
+
+      function setIfAuto(inputEl, value, autoFlagKey) {
+        if (!value) return;
+        if (autoState[autoFlagKey]) inputEl.value = value;
+      }
+
+      // Queries (full commands)
+      function query1(ex, fmt) {
+        const d = isoToQueryDate(ex, fmt);
+        return `db2 "select sum(std_tot_amt) from stl.stl_trsn_dtl where std_compl_dt='${d}' and std_trsn_type='WAC' and std_pran between 500000000000 and 599999999999 with ur"`;
+      }
+      function query2(ex, fmt) {
+        const d = isoToQueryDate(ex, fmt);
+        return `db2 "select sum(std_tot_amt) from stl.stl_trsn_dtl where std_compl_dt='${d}' and std_trsn_type='WAC' and std_pran between 500000000000 and 599999999999 with ur"`;
+      }
+      function query3(ex, fmt) {
+        const d = isoToQueryDate(ex, fmt);
+        return `db2 "select sum(std_tot_amt) from stl.stl_trsn_dtl where std_compl_dt='${d}' and std_trsn_type='WAC' and std_pran between 100000000000 and 999999999999 with ur"`;
+      }
+      function query4(ex, fmt) {
+        const d = isoToQueryDate(ex, fmt);
+        return `db2 "select sum(STD_TOT_AMT) from stl.stl_trsn_dtl where std_tier_type = 'T4' and std_compl_dt='${d}' and std_trsn_type='WAC' with ur"`;
+      }
+      function query5(ur, fmt) {
+        const d = isoToQueryDate(ur, fmt);
+        return `db2 "select sum(SWD_TOT_AMT) from stl.stl_sub_wac_dtl where swd_tier_type = 'T4' and SWD_COMPL_DT='${d}' and swd_pran < 500000000000 with ur"`;
+      }
+
+      function buildScript(exIso, urIso, fmt) {
+        return `# ===== WAC Verification Queries =====
+# IMPORTANT RUN INSTRUCTIONS:
+# - Query 1, 3, 4, 5 => RUN ON CRA DB
+# - Query 2          => RUN ON LITE DB
+# Date Format Used In Queries: ${fmt}
+
+# Query 1 (CRA DB): LITE AMT ON CRA
+${query1(exIso, fmt)}
+
+# Query 2 (LITE DB): LITE AMT ON LITE
+${query2(exIso, fmt)}
+
+# Query 3 (CRA DB): Total WAC AMT ON CRA
+${query3(exIso, fmt)}
+
+# Query 4 (CRA DB): T4 UPS Withdrawal (TRSN)
+${query4(exIso, fmt)}
+
+# Query 5 (CRA DB): T4 UPS Withdrawal (SUB WAC)
+${query5(urIso, fmt)}
+`;
+      }
+
+      function extractSumsPreferDb2Pattern(text) {
+        const cleaned = decodeAngleBrackets(text);
+        const re = /-+\s*\n\s*([+-]?\d[\d,]*\.\d{1,})/g;
+        const sums = [];
+        let m;
+        while ((m = re.exec(cleaned)) !== null) {
+          const v = Number(m[1].replace(/,/g, ""));
+          if (Number.isFinite(v)) sums.push(v);
+          if (sums.length >= 5) break;
+        }
+        return sums;
+      }
+
+      function extractFiveAmountsFallback(text) {
+        const cleaned = decodeAngleBrackets(text);
+        const matches =
+          cleaned.match(
+            /[+-]?\d{1,3}(?:,\d{3})*(?:\.\d+)?|[+-]?\d+(?:\.\d+)?/g
+          ) || [];
+        const nums = matches
+          .map((s) => Number(s.replace(/,/g, "")))
+          .filter(Number.isFinite);
+        const filtered = nums.filter((n) => n !== 1);
+        const refined = filtered.filter(
+          (n) => String(n).includes(".") || Math.abs(n) > 9999
+        );
+        const use = refined.length >= 5 ? refined : filtered;
+        return use.slice(0, 5);
+      }
+
+      function extractFiveAmounts(db2Text) {
+        const sums = extractSumsPreferDb2Pattern(db2Text);
+        return sums.length >= 5
+          ? sums.slice(0, 5)
+          : extractFiveAmountsFallback(db2Text);
+      }
+
+      // "a - -b" => "a - (-b)"
+      function formatMinus(a, b) {
+        const A = formatMoney(a);
+        const B = formatMoney(b);
+        if (!Number.isFinite(a) || !Number.isFinite(b)) return `${A} - ${B}`;
+        return b < 0 ? `${A} - (${B})` : `${A} - ${B}`;
+      }
+
+      function buildMail({
+        isProper,
+        fileHeader,
+        qVals,
+        calc1,
+        calc2,
+        calc3,
+        residualAmt,
+        exIso,
+        urIso,
+        fmt,
+        tol,
+      }) {
+        const verdict = isProper
+          ? "WAC file is proper.\nPlease find below data."
+          : "WAC file is not proper.\nPlease find below data.";
+
+        const headerBlock = (fileHeader || "").trim()
+          ? (fileHeader || "").trim()
+          : `(File header not pasted)`;
+
+        const [q1v, q2v, q3v, q4v, q5v] = qVals;
+
+        return `Dear Team,
+
+${verdict}
+
+${headerBlock}
+
+########### LITE AMT ON CRA (CRA DB) ##########
+
+${query1(exIso, fmt)}
+
+1
+---------------------------------
+${formatMoney(q1v)}
+
+  1 record(s) selected.
+
+########### LITE AMT ON LITE (LITE DB) ##########
+
+${query2(exIso, fmt)}
+
+1
+---------------------------------
+${formatMoney(q2v)}
+
+  1 record(s) selected.
+
+########### ON CRA Total WAC AMT (CRA DB) ##########
+
+${query3(exIso, fmt)}
+
+1
+---------------------------------
+${formatMoney(q3v)}
+
+  1 record(s) selected.
+
+################## Difference due to UPS Withdrawal in Residual Amt in WAC File (CRA DB) ################
+
+${query4(exIso, fmt)}
+
+1
+---------------------------------
+${formatMoney(q4v)}
+
+  1 record(s) selected.
+
+################# Difference of below amount should match with the difference of Residual Amt In WAC File and the derived residual amount from the above queries (CRA DB) ######
+
+${query5(urIso, fmt)}
+
+1
+---------------------------------
+${formatMoney(q5v)}
+
+  1 record(s) selected.
+
+Actual Residual Amount : ${formatMinus(q1v, q2v)} = ${formatMoney(calc1)}
+T4 UPS Withdrawal Residual Amount : ${formatMinus(q4v, q5v)} = ${formatMoney(
+          calc2
+        )}
+Total Residual Amount Present In WAC File : ${formatMinus(
+          calc1,
+          calc2
+        )} = ${formatMoney(calc3)}
+
+Thanks,
+Hardik`;
+      }
+
+      // Manual overrides
+      $("extractionDate").addEventListener(
+        "input",
+        () => (autoState.extractionAuto = false)
+      );
+      $("unitRedmpDate").addEventListener(
+        "input",
+        () => (autoState.unitAuto = false)
+      );
+      $("residualAmt").addEventListener(
+        "input",
+        () => (autoState.residualAuto = false)
+      );
+
+      // Auto-parse header: set extraction date AND unit redemption date same
+      $("fileHeader").addEventListener("input", () => {
+        const header = $("fileHeader").value;
+        if (!header.trim()) return;
+
+        const parsed = parseHeaderForFields(header);
+        const fmt = $("dateFormat").value;
+
+        if (parsed.extractionIso) {
+          setIfAuto(
+            $("extractionDate"),
+            parsed.extractionIso,
+            "extractionAuto"
+          );
+          setIfAuto($("unitRedmpDate"), parsed.extractionIso, "unitAuto");
+        }
+        if (Number.isFinite(parsed.residualAmt) && autoState.residualAuto) {
+          $("residualAmt").value = round2(parsed.residualAmt).toFixed(2);
+        }
+
+        if (parsed.extractionIso) {
+          setStatus(
+            `Header parsed: Execution-date = ${isoToQueryDate(
+              parsed.extractionIso,
+              fmt
+            )}, Residual = ${formatMoney(parsed.residualAmt)}`,
+            "good"
+          );
+        } else {
+          setStatus(
+            "Header pasted, but <Execution-date> tag not detected.",
+            "warn"
+          );
+        }
+      });
+
+      // Generate script
+      $("genScriptBtn").addEventListener("click", () => {
+        const exIso = $("extractionDate").value;
+        const urIso = $("unitRedmpDate").value;
+        const fmt = $("dateFormat").value;
+        if (!exIso || !urIso)
+          return setStatus(
+            "Fill Extraction Date + Unit Redemption Date.",
+            "warn"
+          );
+
+        $("scriptOut").value = buildScript(exIso, urIso, fmt);
+        setStatus("Script generated. (Q2 on LITE DB, rest on CRA DB)", "good");
+      });
+
+      $("copyScriptBtn").addEventListener("click", () => {
+        const v = $("scriptOut").value.trim();
+        if (!v)
+          return setStatus("Nothing to copy. Generate script first.", "warn");
+        copyToClipboard(v);
+      });
+
+      // Parse outputs + mail
+      $("parseBtn").addEventListener("click", () => {
+        const exIso = $("extractionDate").value;
+        const urIso = $("unitRedmpDate").value;
+        const fmt = $("dateFormat").value;
+
+        if (!exIso || !urIso)
+          return setStatus(
+            "Fill Extraction Date + Unit Redemption Date.",
+            "warn"
+          );
+
+        const tol = round2(Number($("tolerance").value || "0"));
+        const residual = round2(Number($("residualAmt").value));
+        if (!Number.isFinite(residual))
+          return setStatus(
+            "Residual Amount missing. Paste header or enter it.",
+            "warn"
+          );
+
+        const raw = extractFiveAmounts($("db2Out").value);
+        if (raw.length < 5)
+          return setStatus(
+            `Could not find 5 sums (found ${raw.length}). Paste Q1→Q5 outputs.`,
+            "bad"
+          );
+
+        const amounts = raw.map(round2);
+        const [q1, q2, q3, q4, q5] = amounts;
+
+        const calc1 = round2(q1 - q2);
+        const calc2 = round2(q4 - q5);
+        const calc3 = round2(calc1 - calc2);
+
+        const isProper = Math.abs(round2(calc3 - residual)) <= tol;
+
+        $("calcBox").style.display = "grid";
+        $("q1v").textContent = formatMoney(q1);
+        $("q2v").textContent = formatMoney(q2);
+        $("q3v").textContent = formatMoney(q3);
+        $("q4v").textContent = formatMoney(q4);
+        $("q5v").textContent = formatMoney(q5);
+        $("c1v").textContent = formatMoney(calc1);
+        $("c2v").textContent = formatMoney(calc2);
+        $("c3v").textContent = formatMoney(calc3);
+        $("rav").textContent = formatMoney(residual);
+
+        $("mailOut").value = buildMail({
+          isProper,
+          fileHeader: $("fileHeader").value,
+          qVals: amounts,
+          calc1,
+          calc2,
+          calc3,
+          residualAmt: residual,
+          exIso,
+          urIso,
+          fmt,
+          tol,
+        });
+
+        setStatus(
+          isProper
+            ? "MATCH: WAC file is proper"
+            : "MISMATCH: WAC file is not proper",
+          isProper ? "good" : "bad"
+        );
+      });
+
+      $("copyMailBtn").addEventListener("click", () => {
+        const v = $("mailOut").value.trim();
+        if (!v)
+          return setStatus("Nothing to copy. Parse outputs first.", "warn");
+        copyToClipboard(v);
+      });
+
+      $("clearBtn").addEventListener("click", () => {
+        [
+          "extractionDate",
+          "unitRedmpDate",
+          "residualAmt",
+          "tolerance",
+          "fileHeader",
+          "scriptOut",
+          "db2Out",
+          "mailOut",
+        ].forEach((id) => ($(id).value = ""));
+        $("tolerance").value = "0";
+        $("calcBox").style.display = "none";
+        $("statusLine").innerHTML = "";
+        autoState.extractionAuto = true;
+        autoState.unitAuto = true;
+        autoState.residualAuto = true;
+        $("dateFormat").value = "MM-DD-YYYY";
+      });
+    </script>
+  </body>
+</html>
