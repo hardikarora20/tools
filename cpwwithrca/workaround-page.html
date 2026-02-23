@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Data and Workaround</title>
+  <style>
+    body {
+      background: #1e1f22;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #ddd;
+    }
+    .container {
+      background: #2b2d31;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      width: 400px;
+      animation: fadeIn 0.6s forwards;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #eee;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #8ecae6;
+      border: none;
+      border-radius: 8px;
+      color: #1e1f22;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #9fd4ed;
+    }
+    .drop-zone {
+      border: 2px dashed #8ecae6;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      transition: background 0.3s;
+      box-sizing: border-box;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 5%;
+      transition: all 0.5s ease-in-out;   
+    }
+
+    .drop-zone.dragover {
+      background: rgba(142, 202, 230, 0.1);
+    }
+
+    @keyframes fadeIn {
+        0%{
+            opacity: 0;
+        }
+        100%{
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        0%{
+            opacity: 1;
+        }
+        100%{
+            opacity: 0;
+        }
+    }
+    .drop-container{
+        display: flex;
+        gap: 0.5rem;
+        align-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .drag-drop-container{
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .dropped {   
+        border-style: solid;
+        border-color: #546567;
+        background-color: #8ecae6;
+        color: #1e1f22;
+        font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="input-group">
+      <label for="advent">Advent Number</label>
+      <input type="text" id="advent" placeholder="Enter Advent Number">
+    </div>
+    <div class="drop-container">
+        <label>Drag & Drop your files here</label>
+        <div class="drag-drop-container">
+            <div class="drop-zone" id="dropZone1">
+                <span>Data file</span>
+                <input type="file" id="fileInput1" hidden>
+            </div>
+            <div class="drop-zone" id="dropZone2">
+                <span>Text file</span>
+                <input type="file" id="fileInput2" hidden>
+            </div>
+        </div>
+    </div>
+    <button id="download">Download Workaround</button>
+    <!-- <div class="input-group">
+      <label for="pran">PRAN</label>
+      <input type="text" id="pran" placeholder="Enter PRAN">
+    </div>
+    <div class="input-group">
+      <label for="ack">ACK Number</label>
+      <input type="text" id="ack" placeholder="Enter ACK Number">
+    </div>
+    <div class="input-group">
+      <label for="output">Update Output</label>
+      <textarea id="output" placeholder="Paste output here..."></textarea>
+    </div>
+    <button type="submit" id="download">Download Workaround Script</button> -->
+  </div>
+
+  <script>
+window.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        console.log(params);
+        const advent = params.get('advent');
+        if (advent) {
+            document.getElementById('advent').value = advent;
+        }
+    });
+
+    const data = `
+Dear Team,
+
+RCA for PRAN: {pran}
+As per the bucketing data units are not properly segregated on account of {rca}.
+As checked Subscriber is having sufficient self-unit for withdrawal.
+Requests can be processed for Payin.
+
+Please take the backup of the table before execution of the script.
+Please find below updated workaround scripts. After below script execution kindly execute unit blocking jar of conditional withdrawal blocking.
+
+update sub.sub_wdr set SWD_STS='H', SWD_MDFD_BY='DBO', SWD_MDFD_TMSTMP=current timestamp, SWD_STS_DES='Authorized' where SWD_ACK = {ack} and SWD_PRAN = {pran}
+
+update wdr.CONDTN_PART_WDR set CPW_WDR_STS='H', CPW_MDFD_BY='DBO', CPW_MDFD_TIMESTAMP=current timestamp where CPW_PRAN = {pran} and CPW_ACK = {ack}
+
+insert into arch.stl_sub_bal_unt_acc_buckets ( SSB_PRAN, SSB_PFM_ID, SSB_SCH_ID,SSB_TOT_UNT, SSB_BLCKD_UNT, SSB_TIER_TYPE, SSB_CRTD_TMSTMP, SSB_SELF_UNT, SSB_EMPLOYER_UNT,SSB_ARCHIVED_BY, SSB_ARCHIVED_TIMESTAMP, SSB_ARCHIVED_DATE,SSB_ARCHIVED_REMARK ) ( Select SSB_PRAN, SSB_PFM_ID, SSB_SCH_ID,SSB_TOT_UNT, SSB_BLCKD_UNT, SSB_TIER_TYPE, SSB_CRTD_TMSTMP, SSB_SELF_UNT, SSB_EMPLOYER_UNT,'DBO', Current Timestamp, CRA_BIZ_DT, 'Advent - {advent}' From master.stl_Date_mst, stl.stl_sub_bal_unt_Acc_buckets where ssb_pran = {pran} with ur )
+
+delete from stl.stl_sub_bal_unt_acc_buckets where SSB_PRAN = {pran} and SSB_TIER_TYPE ='T1' and SSB_CRTD_TMSTMP in ('')
+
+delete from stl.stl_sub_bal_unt_acc_buckets where SSB_PRAN = {pran} and SSB_TIER_TYPE ='T1' and SSB_SCH_ID in ('')
+
+delete from stl.stl_sub_bal_unt_acc_buckets where SSB_PRAN = {pran} and SSB_TIER_TYPE ='T1' and SSB_PFM_ID in ('')
+`;
+
+    const updateData = `
+update stl.stl_sub_bal_unt_acc_buckets set SSB_SELF_UNT =  {selfunit}, SSB_EMPLOYER_UNT = {employerunit} where SSB_PRAN = {pran} and SSB_TIER_TYPE ='T1' and SSB_SCH_ID ='{schemeid}'
+`;
+
+  let updateScriptData = [];
+  let pran, ack, rca;
+
+  function removeSQLCABlocks(text) {
+    const regex = /SQLCA Information[\s\S]*?sqlstate:.*?(\r?\n|$)/g;
+    return text.replace(regex, '');
+  }
+
+  function cleanedFileName() {
+    return `Data for PRAN ${pran}.txt`;
+  }
+
+  function processFile(rawData) {
+    const pranMatch = rawData.match(/select \* from sub\.sub_wdr where swd_pran = (\d{12})/i);
+    pran = pranMatch ? pranMatch[1] : 'UNKNOWN';
+
+    const ackMatch = rawData.match(/select \* from sub\.sub_wdr_sch where sws_ack = '?(\d{10})'?/i);
+    ack = ackMatch ? ackMatch[1] : 'UNKNOWN';
+
+    const lastTableMatch = rawData.match(
+      /SSB_PRAN\s+SSB_SCH_ID\s+SSB_TOT_UNT\s+SSB_SELF_UNT\s+SSB_EMPLOYER_UNT\s+[-\s]+\n([\s\S]+?)(?:\n\n|$)/i
+    );
+
+    updateScriptData = []; // reset!
+
+    if (lastTableMatch) {
+      const rows = lastTableMatch[1].trim().split('\n');
+      for (const row of rows) {
+        const parts = row.trim().split(/\s+/);
+        if (parts.length === 5) {
+          updateScriptData.push({
+            SSB_PRAN: parts[0],
+            SSB_SCH_ID: parts[1],
+            SSB_TOT_UNT: parts[2],
+            SSB_SELF_UNT: parts[3],
+            SSB_EMPLOYER_UNT: parts[4]
+          });
+        }
+      }
+    }
+  }
+
+  function workaroundQuery() {
+    const advent = document.getElementById("advent").value;
+    return data
+      .replaceAll('{advent}', advent)
+      .replaceAll('{pran}', pran)
+      .replaceAll('{rca}', rca)
+      .replaceAll('{ack}', ack);
+  }
+
+  function updateQuery() {
+    return updateScriptData.map(item => {
+      return updateData
+        .replaceAll('{selfunit}', item.SSB_SELF_UNT)
+        .replaceAll('{employerunit}', item.SSB_EMPLOYER_UNT)
+        .replaceAll('{pran}', item.SSB_PRAN)
+        .replaceAll('{schemeid}', item.SSB_SCH_ID);
+    }).join("");
+  }
+
+  function generateWorkaround() {
+    return workaroundQuery() + "" + updateQuery();
+  }
+
+  var originalText, cleanedText;
+
+  function handleFile(file) {
+    console.log(file.name);
+    dropZone1.innerText = file.name;
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        originalText = e.target.result;
+        cleanedText = removeSQLCABlocks(originalText);
+
+        processFile(cleanedText);
+
+        console.log("✅ PRAN:", pran);
+        console.log("✅ ACK:", ack);
+        console.log("✅ updateScriptData:", updateScriptData);
+    };
+
+    reader.readAsText(file);
+}
+
+
+    let parsedData = [];
+    let singleData;
+    var result = [];
+
+
+  function processFileRCA(input) {
+    console.log("in process file rca");
+    const lines = input.trimEnd().split('\n');
+    if (lines.length < 2) return console.error("Not enough lines to process.");
+
+    const headerLine = lines[1];
+
+    const colStarts = [];
+    for (let i = 0; i < headerLine.length; i++) {
+        if (
+            headerLine[i] !== ' ' &&
+            (i === 0 || headerLine[i - 1] === ' ')
+        ) {
+            colStarts.push(i);
+        }
+    }
+
+    const colEnds = [...colStarts.slice(1), headerLine.length];
+
+    const headers = colStarts.map((start, idx) =>
+        headerLine.slice(start, colEnds[idx]).trim()
+    );
+
+    parsedData = [];
+
+    
+
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.trim() === '') continue;
+
+        const row = colStarts.map((start, idx) =>
+            line.slice(start, colEnds[idx]).trim()
+        );
+
+        if (row.length === headers.length) {
+            parsedData.push(row);
+        } else {
+            console.warn(`Skipped row due to mismatch:`, line);
+        }
+    }
+
+    console.log(`Parsed ${parsedData.length} rows.`);
+    // console.log(parsedData);
+}
+
+    function getEntitiesWithEmployerFields() {
+        return parsedData
+            .filter(parts =>
+            parts[33] == "-" &&
+            parts[34] == "-" &&
+            parts[35] == "-" &&
+            parts[36] == "-" &&
+            parts[37] == "-" 
+            )
+        .map(parts => [parts[10],parts[4]]);
+    }
+
+
+    function getEntitiesWithPayinOrPayout() {
+    return parsedData
+        .filter(parts =>
+            parts[19] == "-" &&
+            parts[20] == "-" 
+        )
+        .map(parts => [parts[10],parts[4]]);
+    }
+
+    function handleFileRCA(file) {
+      
+        dropZone2.innerText = file.name;
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const originalText = e.target.result;
+
+            // console.log(originalText);
+            processFileRCA(originalText);
+
+            // const entitiesWithEmployer = getEntitiesWithEmployerFields();
+            //keep only the valid schemes in this remove the rest
+            // populate this one
+            var valid = updateScriptData.map(innerArray => innerArray["SSB_SCH_ID"]);
+            console.log(valid)
+            // console.log(entitiesWithEmployer)
+            var filtered = parsedData
+              .filter(parts =>
+              parts[33] == "-" &&
+              parts[34] == "-" &&
+              parts[35] == "-" &&
+              parts[36] == "-" &&
+              parts[37] == "-" 
+              )
+            .map(parts => [parts[10],parts[4]]);
+            console.log(filtered);
+            filtered = filtered.filter(([code]) => valid.includes(code));
+            console.log(filtered);
+
+            if(filtered.length == 0){
+              var filteredPayin = parsedData
+              .filter(parts =>
+                  parts[19] == "-" &&
+                  parts[20] == "-" 
+              )
+              .map(parts => [parts[10],parts[4]]);
+              console.log(filteredPayin);
+              console.log("filteredPayin");
+              
+              result = [...new Set(filteredPayin.map(item => item[1]))].sort();
+            }
+            else{
+              
+              result = [...new Set(filtered.map(item => item[1]))].sort();
+            }
+            
+            console.log(valid)
+            console.log(filtered)
+            
+            console.log(result);
+            console.log(rca);
+            rca = result.join(", ");
+
+            console.log(result);
+            console.log(rca);
+            
+            // const completeData = generateWorkaround();
+            // const cleanedBlob = new Blob([cleanedText], { type: 'text/plain' });
+            // const cleanedUrl = URL.createObjectURL(cleanedBlob);
+            // const cleanedLink = document.createElement('a');
+            // cleanedLink.href = cleanedUrl;
+            // cleanedLink.download = `Data for PRAN ${pran}.txt`;
+            // cleanedLink.click();
+
+            // const workaroundBlob = new Blob([completeData], { type: 'text/plain' });
+            // const workaroundUrl = URL.createObjectURL(workaroundBlob);
+            // const workaroundLink = document.createElement('a');
+            // workaroundLink.href = workaroundUrl;
+            // workaroundLink.download = `Workaround for PRAN ${pran}.txt`;
+            // workaroundLink.click();
+        };
+
+        reader.readAsText(file);
+    }
+
+  function removeSQLCABlocks(text) {
+    const regex = /SQLCA Information[\s\S]*?sqlstate:.*?(\r?\n|$)/g;
+    return text.replace(regex, '');
+  }
+
+  function cleanedFileName() {
+    return `Data for PRAN ${pran}.txt`;
+  }
+
+  const dropZone1 = document.getElementById('dropZone1');
+  const fileInput1 = document.getElementById('fileInput1');
+  const dropZone2 = document.getElementById('dropZone2');
+  const fileInput2 = document.getElementById('fileInput2');
+
+  dropZone1.addEventListener('click', () => fileInput1.click());
+
+  dropZone1.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone1.classList.add('dragover');
+  });
+
+  dropZone1.addEventListener('dragleave', () => {
+    dropZone1.classList.remove('dragover');
+  });
+
+  dropZone1.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone1.classList.remove('dragover');
+    dropZone1.classList.add('dropped');
+    dropZone1.innerText = "✔";
+    if (e.dataTransfer.files.length) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput1.addEventListener('change', () => {
+    if (fileInput1.files.length) {
+      handleFile(fileInput1.files[0]);
+    }
+  });
+
+  dropZone2.addEventListener('click', () => fileInput.click());
+
+  dropZone2.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone2.classList.add('dragover');
+  });
+
+  dropZone2.addEventListener('dragleave', () => {
+    dropZone2.classList.remove('dragover');
+  });
+
+  dropZone2.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone2.classList.remove('dragover');
+    dropZone2.classList.add('dropped');
+    dropZone2.innerText = "✔";
+    if (e.dataTransfer.files.length) {
+      handleFileRCA(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput2.addEventListener('change', () => {
+    if (fileInput2.files.length) {
+      handleFileRCA(fileInput2.files[0]);
+    }
+  });
+
+
+    document.getElementById('download').addEventListener('click', function () {
+        // add this to download button
+        console.log("download button clicked");
+        const completeData = generateWorkaround();
+
+        console.log(cleanedText);
+        console.log(completeData);
+
+        const cleanedBlob = new Blob([cleanedText], { type: 'text/plain' });
+        const cleanedUrl = URL.createObjectURL(cleanedBlob);
+        const cleanedLink = document.createElement('a');
+        cleanedLink.href = cleanedUrl;
+        cleanedLink.download = `Data for PRAN ${pran}.txt`;
+        cleanedLink.click();
+
+        const workaroundBlob = new Blob([completeData], { type: 'text/plain' });
+        const workaroundUrl = URL.createObjectURL(workaroundBlob);
+        const workaroundLink = document.createElement('a');
+        workaroundLink.href = workaroundUrl;
+        workaroundLink.download = `Workaround for PRAN ${pran}.txt`;
+        workaroundLink.click();
+    });
+  
+
+</script>
+</body>
+</html>
