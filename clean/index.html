@@ -1,1 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Clean Text File</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
 
+    h1 {
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+
+    .drop-zone {
+      border: 2px dashed #8ecae6;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      transition: background 0.3s;
+      cursor: pointer;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .drop-zone.dragover {
+      background: rgba(142, 202, 230, 0.1);
+    }
+
+    #downloadBtn {
+      margin-top: 20px;
+      background: #8ecae6;
+      color: #121212;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    #downloadBtn:hover {
+      background: #7dbad5;
+    }
+
+    #downloadBtn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+       body {
+      background: #1e1f22;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #ddd;
+    }
+    .container {
+      background: #2b2d31;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      width: 400px;
+      animation: fadeIn 0.6s forwards;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #eee;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #8ecae6;
+      border: none;
+      border-radius: 8px;
+      color: #1e1f22;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #9fd4ed;
+    }
+    .drop-zone {
+      border: 2px dashed #8ecae6;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      transition: background 0.3s;
+      box-sizing: border-box;
+      cursor: pointer;
+      max-width: 400px;
+      width: 100%;
+      /* margin-bottom: 5%; */
+    }
+
+    .drop-zone.dragover {
+      background: rgba(142, 202, 230, 0.1);
+    }
+
+    @keyframes fadeIn {
+        0%{
+            opacity: 0;
+        }
+        100%{
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        0%{
+            opacity: 1;
+        }
+        100%{
+            opacity: 0;
+        }
+    }
+  </style>
+</head>
+<body>
+    <div class="container">
+        <!-- <h1></h1> -->
+        <div class="drop-zone" id="dropZone">
+          Drag & Drop your file here to clean
+          <input type="file" id="fileInput" hidden>
+        </div>
+    </div>
+
+  <!-- <button id="downloadBtn" disabled>Download Cleaned File</button> -->
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let cleanedBlobUrl = '';
+
+    function processFile(input){
+        const lines = input.split('\n');
+        const trimmedLines = lines.map(line => line.trim());
+        const cleanedLines = [];
+        let emptyLineStreak = false;
+        for(const line of trimmedLines){
+            if(line === ''){
+                if(!emptyLineStreak){
+                    cleanedLines.push('');
+                    emptyLineStreak = true;
+                }
+            }   else    {
+                cleanedLines.push(line);
+                emptyLineStreak = false;
+            }
+        }
+        return cleanedLines.join('\n');
+    }
+
+    function removeSQLCABlocks(text) {
+      const regex = /SQLCA Information[\s\S]*?sqlstate:.*?(\r?\n|$)/g;
+      return text.replace(regex, '');
+    }
+
+    function handleFile(file) {
+        console.log(file.name);
+        const reader = new FileReader();
+        reader.onload = function(e) {
+        const originalText = e.target.result;
+        const cleanedText = removeSQLCABlocks(processFile(originalText));
+        // console.log(cleanedText);
+
+        const blob = new Blob([cleanedText], { type: 'text/plain' });
+        cleanedBlobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = cleanedBlobUrl;
+        const onlyPranFileName = file.name.split("_");
+        link.download = onlyPranFileName[1];
+        link.click();
+
+      };
+      reader.readAsText(file);
+    }
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', e => {
+      if (fileInput.files.length) {
+        handleFile(fileInput.files[0]);
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (cleanedBlobUrl) {
+        const link = document.createElement('a');
+        link.href = cleanedBlobUrl;
+        link.download = cleanedFileName(file.name);
+        link.click();
+      }
+    });
+  </script>
+
+</body>
+</html>
