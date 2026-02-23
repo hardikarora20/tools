@@ -1,1 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PRAN Bucketing Employee/Employer Bifurcation</title>
+    <style>
+      /* Fluent / Material-ish dark theme (Windows 11 inspired) */
+      :root {
+        --bg0: #0b1114; /* deep slate */
+        --bg1: #0f171b; /* surface */
+        --card: rgba(255, 255, 255, 0.06); /* glass */
+        --card2: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.1);
+        --text: #e9f1f5;
+        --muted: #a6bac6;
+        --accent: #4fc3f7; /* primary accent (single shade) */
+        --accent-2: rgba(79, 195, 247, 0.18);
+        --danger: #ff6b8a;
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+        --shadow2: 0 8px 18px rgba(0, 0, 0, 0.32);
+        --radius: 16px;
+        --radius2: 14px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        --sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system,
+          Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      }
 
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--text);
+        background: radial-gradient(
+            1200px 900px at 15% 10%,
+            rgba(79, 195, 247, 0.22),
+            transparent 55%
+          ),
+          radial-gradient(
+            900px 650px at 85% 25%,
+            rgba(79, 195, 247, 0.12),
+            transparent 55%
+          ),
+          radial-gradient(
+            800px 600px at 40% 110%,
+            rgba(255, 255, 255, 0.05),
+            transparent 55%
+          ),
+          linear-gradient(180deg, var(--bg0), var(--bg1));
+        min-height: 100vh;
+      }
+
+      header {
+        padding: 30px 18px 10px;
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 22px;
+        letter-spacing: 0.2px;
+        font-weight: 650;
+      }
+
+      p.lead {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 14px 18px 44px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      @media (min-width: 980px) {
+        .grid {
+          grid-template-columns: 1.05fr 0.95fr;
+        }
+      }
+
+      /* Glass cards */
+      .card {
+        position: relative;
+        background: linear-gradient(180deg, var(--card), var(--card2));
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 16px;
+        overflow: hidden;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        background: radial-gradient(
+          700px 250px at 20% 0%,
+          rgba(79, 195, 247, 0.14),
+          transparent 60%
+        );
+        pointer-events: none;
+      }
+
+      .card h2 {
+        font-size: 13px;
+        margin: 0 0 12px;
+        color: #d9e8ef;
+        font-weight: 650;
+        letter-spacing: 0.15px;
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 12px 0 6px;
+      }
+
+      textarea,
+      input[type="text"] {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius2);
+        padding: 11px 12px;
+        outline: none;
+        resize: vertical;
+        font-family: var(--mono);
+        font-size: 12.6px;
+        line-height: 1.4;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      textarea::placeholder,
+      input::placeholder {
+        color: rgba(166, 186, 198, 0.55);
+      }
+
+      textarea:focus,
+      input[type="text"]:focus {
+        border-color: rgba(79, 195, 247, 0.65);
+        box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.16),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      /* Buttons: fluent pill-ish */
+      .btn {
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        padding: 9px 12px;
+        border-radius: 999px;
+        font-weight: 650;
+        font-size: 12px;
+        letter-spacing: 0.2px;
+        transition: transform 0.12s ease, background 0.12s ease,
+          border-color 0.12s ease, box-shadow 0.12s ease;
+        user-select: none;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.09);
+        box-shadow: var(--shadow2);
+      }
+
+      .btn:active {
+        transform: translateY(0px) scale(0.99);
+      }
+
+      .btn.primary {
+        border-color: rgba(79, 195, 247, 0.55);
+        background: rgba(79, 195, 247, 0.16);
+      }
+
+      .btn.primary:hover {
+        background: rgba(79, 195, 247, 0.22);
+      }
+
+      .btn.blue {
+        /* keep class name for compatibility; uses same accent */
+        border-color: rgba(79, 195, 247, 0.35);
+        background: rgba(79, 195, 247, 0.1);
+      }
+
+      .btn.blue:hover {
+        background: rgba(79, 195, 247, 0.16);
+      }
+
+      .btn.danger {
+        border-color: rgba(255, 107, 138, 0.42);
+        background: rgba(255, 107, 138, 0.14);
+      }
+
+      .btn.danger:hover {
+        background: rgba(255, 107, 138, 0.18);
+      }
+
+      .pill {
+        font-size: 11px;
+        color: var(--muted);
+        padding: 6px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.16);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+
+      .small {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .ok {
+        color: #8ef0d7;
+      }
+      .warn {
+        color: #ffd37a;
+      }
+      .error {
+        color: var(--danger);
+      }
+
+      .footer {
+        margin-top: 10px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .toggle {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .toggle label {
+        margin: 0;
+      }
+
+      .toggle input {
+        transform: translateY(1px);
+        accent-color: var(--accent);
+      }
+
+      code.kbd {
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 2px 7px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.18);
+      }
+
+      /* subtle scrollbar (webkit) */
+      textarea::-webkit-scrollbar {
+        width: 10px;
+      }
+      textarea::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        border: 2px solid rgba(0, 0, 0, 0.25);
+      }
+      textarea::-webkit-scrollbar-thumb:hover {
+        background: rgba(79, 195, 247, 0.22);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Bucketing Employee/Employer Bifurcation</h1>
+      <p class="lead">
+        Enter one or more PRANs → generate the DB2 query → paste the DB2 output
+        → get the workaround text with one-click copy.
+      </p>
+    </header>
+
+    <div class="wrap">
+      <div class="grid">
+        <section class="card">
+          <h2>1) PRANs → Generate Query</h2>
+
+          <label for="prans"
+            >PRAN input (comma / space / new line separated)</label
+          >
+          <textarea
+            id="prans"
+            rows="5"
+            placeholder="e.g.\n123456789012\n234567890123\n..."
+          ></textarea>
+
+          <div class="toggle" style="margin-top: 10px">
+            <label style="margin: 0"
+              ><input id="quote" type="checkbox" checked /> Quote PRAN values in
+              IN-clause (recommended)</label
+            >
+            <label style="margin: 0"
+              ><input id="dedupe" type="checkbox" checked /> De-duplicate
+              PRANs</label
+            >
+            <span class="pill" id="countPill">0 PRAN(s)</span>
+          </div>
+
+          <div class="row" style="margin-top: 10px">
+            <button class="btn primary" id="btnGen">Generate Query</button>
+            <button class="btn blue" id="btnCopyQuery">Copy Query</button>
+            <button class="btn danger" id="btnClear">Clear</button>
+            <span class="small"
+              >Tip: Use <code class="kbd">Ctrl/Cmd + Enter</code> to
+              generate.</span
+            >
+          </div>
+
+          <label for="query">Generated DB2 query</label>
+          <textarea
+            id="query"
+            rows="12"
+            readonly
+            placeholder="Query will appear here..."
+          ></textarea>
+
+          <div class="footer">
+            The query template matches your document and replaces
+            <code class="kbd">{pran}</code> in both places.
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>2) Paste DB2 Output → Workaround</h2>
+
+          <label for="output">Paste the DB2 output here (as-is)</label>
+          <textarea
+            id="output"
+            rows="10"
+            placeholder="Paste output like: \nSTD_PRAN   WDRCOUNT\n123...     2\n..."
+          ></textarea>
+
+          <div class="row" style="margin-top: 10px">
+            <button class="btn primary" id="btnProcess">Process Output</button>
+            <button class="btn blue" id="btnCopyWork">Copy Workaround</button>
+          </div>
+
+          <label for="workaround">Generated workaround text</label>
+          <textarea
+            id="workaround"
+            rows="14"
+            readonly
+            placeholder="Workaround will appear here..."
+          ></textarea>
+
+          <div class="footer" id="status">
+            Status: <span class="small">Waiting for input…</span>
+          </div>
+        </section>
+      </div>
+    </div>
+    <script>
+      // ---- Query template (from provided doc) ----
+      function buildMainQuery(pranListText) {
+        return `db2 "select a.std_pran,count(1) as WDRCOUNT from (SELECT STD_PRAN, STD_TIER_TYPE, STD_ENTITY_ID,std_trsn_type, STD_REQ_ID, STD_COMPL_DT, std_remarks, STD_TRSN_UNT,std_trsn_sr_no,STD_CRTD_TMSTMP from STL.STL_TRSN_DTL where STD_PRAN in (${pranListText}) and std_tier_type = 'T1' and STD_TRSN_TYPE not in ('WAP','WAC') group by STD_PRAN, STD_TIER_TYPE, STD_ENTITY_ID,std_trsn_type, STD_REQ_ID, STD_COMPL_DT, std_remarks, STD_TRSN_UNT,std_trsn_sr_no,STD_CRTD_TMSTMP) A left outer join (SELECT STD_PRAN, STD_TIER_TYPE, STD_ENTITY_ID,std_trsn_type, STD_REQ_ID, STD_COMPL_DT, std_remarks, STD_TRSN_UNT, STD_SELF_UNT, STD_GOVT_UNT,std_trsn_sr_no,STD_CRTD_TMSTMP from STL.STL_TRSN_DTL_BUCKET where STD_PRAN in (${pranListText})and std_tier_type = 'T1' and STD_TRSN_TYPE not in ('WAP','WAC') group by STD_PRAN, STD_TIER_TYPE, STD_ENTITY_ID,std_trsn_type, STD_REQ_ID, STD_COMPL_DT, std_remarks, STD_TRSN_UNT, STD_SELF_UNT, STD_GOVT_UNT,std_trsn_sr_no,STD_CRTD_TMSTMP)B on ( A.STD_PRAN = B.STD_PRAN and A.STD_TIER_TYPE = B.STD_TIER_TYPE and A.STD_ENTITY_ID = B.STD_ENTITY_ID and A.STD_REQ_ID = B.STD_REQ_ID and A.STD_COMPL_DT = B.STD_COMPL_DT and A.std_trsn_type= B.std_trsn_type and nvl(A.std_remarks,'') = nvl(B.std_remarks,'') and NVL(A.std_trsn_sr_no,0) = NVL(b.std_trsn_sr_no,0) ) where A.STD_PRAN = B.STD_PRAN and A.STD_TIER_TYPE = B.STD_TIER_TYPE and A.STD_ENTITY_ID = B.STD_ENTITY_ID and A.STD_REQ_ID = B.STD_REQ_ID and A.STD_COMPL_DT = B.STD_COMPL_DT and nvl(A.std_remarks,'') = nvl(B.std_remarks,'') and NVL(A.std_trsn_sr_no,0) = NVL(b.std_trsn_sr_no,0) and ((A.STD_TRSN_UNT <> B.STD_TRSN_UNT) OR (B.STD_SELF_UNT is null) OR (B.STD_GOVT_UNT is null ) OR (B.STD_TRSN_UNT <> (NVL(B.STD_SELF_UNT,0) + NVL(B.STD_GOVT_UNT,0)) ) OR B.STD_SELF_UNT<0 OR B.STD_GOVT_UNT<0 ) or b.std_pran is null group by a.std_pran with ur"`;
+      }
+
+      const $ = (id) => document.getElementById(id);
+
+      function normalizePrans(text) {
+        let tokens = (text || "")
+          .replace(/\r/g, "\n")
+          .split(/[\n,\t ]+/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+
+        if ($("dedupe").checked) {
+          const seen = new Set();
+          const out = [];
+          for (const t of tokens) {
+            if (!seen.has(t)) {
+              seen.add(t);
+              out.push(t);
+            }
+          }
+          tokens = out;
+        }
+        return tokens;
+      }
+
+      function formatInClause(prans) {
+        const quote = $("quote").checked;
+        return prans
+          .map((p) => (quote ? `'${p.replace(/'/g, "''")}'` : p))
+          .join(",");
+      }
+
+      async function copyToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (e) {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand("copy");
+          document.body.removeChild(ta);
+          return ok;
+        }
+      }
+
+      function setStatus(kind, msg) {
+        const el = $("status");
+        const cls =
+          kind === "ok"
+            ? "ok"
+            : kind === "warn"
+            ? "warn"
+            : kind === "error"
+            ? "error"
+            : "";
+        el.innerHTML = `Status: <span class="${cls}">${msg}</span>`;
+      }
+
+      // Extract (pran, count) pairs from DB2 output
+      function parseDb2Output(outputText) {
+        const text = (outputText || "").trim();
+        if (!text) return { rows: [], zeroSelected: false };
+
+        const zeroSelected =
+          /0\s+record\(s\)\s+selected/i.test(text) || /no\s+rows/i.test(text);
+
+        const lines = text
+          .split(/\n/)
+          .map((l) => l.trim())
+          .filter(Boolean);
+        const rows = [];
+
+        for (const line of lines) {
+          if (/^STD_PRAN/i.test(line)) continue;
+          if (/^-{3,}/.test(line)) continue;
+          if (/record\(s\) selected/i.test(line)) continue;
+
+          const m = line.match(/([A-Za-z0-9]{5,})\s*(?:\||\s)\s*(-?\d+)\s*$/);
+          if (m) {
+            rows.push({ pran: m[1], count: parseInt(m[2], 10) });
+          }
+        }
+
+        return { rows, zeroSelected };
+      }
+
+      // NEW format as per your latest requirement
+      function buildWorkaround(prans, queryText, outputText, parsed) {
+        const qBlock =
+          queryText && queryText.trim()
+            ? `\n${queryText.trim()}\n`
+            : `\n( query not provided )\n`;
+
+        const outputBlock =
+          outputText && outputText.trim()
+            ? `\n\n${outputText.trim()}\n`
+            : `\n\n( output not provided )\n`;
+
+        // If query returned 0 records selected (or we couldn't parse any rows), bucketing done.
+        if (parsed.zeroSelected || parsed.rows.length === 0) {
+          return {
+            text: `Dear Team,\nAs checked, bucketing has been done.\n${qBlock}${outputBlock}`,
+            summary: `No rows found in output → bucketing done message generated for ${prans.length} PRAN(s).`,
+          };
+        }
+
+        const map = new Map();
+        for (const r of parsed.rows) {
+          map.set(r.pran, r.count);
+        }
+
+        const need = [];
+        const done = [];
+
+        for (const p of prans) {
+          const c = map.get(p);
+          if (typeof c === "number" && c > 1) need.push({ pran: p, count: c });
+          else done.push({ pran: p, count: typeof c === "number" ? c : 0 });
+        }
+
+        const needListInline = need.map((x) => x.pran).join(", ");
+        const doneListInline = done.map((x) => x.pran).join(", ");
+
+        let msg = "";
+
+        if (need.length) {
+          msg +=
+            `Dear Team,\n\n` +
+            `As checked, For PRAN(s) ${needListInline} bucketing error also occurs in the family pension module, and it is usually resolved by the testing team. The same family pension code has been used here as well.\n` +
+            `The same bucketing logic used in family pension should also be applied here.\n`;
+        } else {
+          msg += `Dear Team,\nAs checked, bucketing has been done.\n`;
+        }
+
+        msg += `${qBlock}${outputBlock}`;
+
+        if (done.length) {
+          msg += `\n\nFor PRAN(s) ${doneListInline}  bucketing has been done.`;
+        }
+
+        return {
+          text: msg,
+          summary: `Processed output → ${need.length} PRAN(s) need workaround, ${done.length} PRAN(s) marked as bucketing done.`,
+        };
+      }
+
+      function refreshCount() {
+        const prans = normalizePrans($("prans").value);
+        $("countPill").textContent = `${prans.length} PRAN(s)`;
+      }
+
+      $("prans").addEventListener("input", refreshCount);
+      $("quote").addEventListener("change", refreshCount);
+      $("dedupe").addEventListener("change", refreshCount);
+
+      $("btnGen").addEventListener("click", () => {
+        const prans = normalizePrans($("prans").value);
+        if (prans.length === 0) {
+          setStatus("warn", "Please enter at least one PRAN.");
+          $("query").value = "";
+          return;
+        }
+        const inClause = formatInClause(prans);
+        $("query").value = buildMainQuery(inClause);
+        setStatus("ok", `Query generated for ${prans.length} PRAN(s).`);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          $("btnGen").click();
+        }
+      });
+
+      $("btnCopyQuery").addEventListener("click", async () => {
+        const q = $("query").value;
+        if (!q.trim()) {
+          setStatus("warn", "Nothing to copy. Generate the query first.");
+          return;
+        }
+        const ok = await copyToClipboard(q);
+        setStatus(
+          ok ? "ok" : "error",
+          ok ? "Query copied to clipboard." : "Copy failed."
+        );
+      });
+
+      $("btnClear").addEventListener("click", () => {
+        $("prans").value = "";
+        $("query").value = "";
+        $("output").value = "";
+        $("workaround").value = "";
+        refreshCount();
+        setStatus("", "Cleared.");
+      });
+
+      $("btnProcess").addEventListener("click", () => {
+        const prans = normalizePrans($("prans").value);
+        const out = $("output").value;
+        const q = $("query").value;
+
+        if (prans.length === 0) {
+          setStatus("warn", "Enter PRAN(s) first (left side).");
+          return;
+        }
+        if (!out.trim()) {
+          setStatus("warn", "Paste DB2 output first.");
+          return;
+        }
+
+        const parsed = parseDb2Output(out);
+        const result = buildWorkaround(prans, q, out, parsed);
+        $("workaround").value = result.text;
+        setStatus("ok", result.summary);
+      });
+
+      $("btnCopyWork").addEventListener("click", async () => {
+        const w = $("workaround").value;
+        if (!w.trim()) {
+          setStatus("warn", "Nothing to copy. Process output first.");
+          return;
+        }
+        const ok = await copyToClipboard(w);
+        setStatus(
+          ok ? "ok" : "error",
+          ok ? "Workaround copied to clipboard." : "Copy failed."
+        );
+      });
+
+      refreshCount();
+      setStatus("", "Waiting for input…");
+    </script>
+  </body>
+</html>
