@@ -1,1 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>News Screen v9</title>
+    <style>
+      :root {
+        --surface: rgba(9, 16, 29, 0.88);
+        --surface-soft: rgba(11, 20, 35, 0.9);
+        --line: rgba(255, 255, 255, 0.09);
+        --line-soft: rgba(255, 255, 255, 0.05);
+        --text: #f8fafc;
+        --text-soft: #c8d5e4;
+        --text-muted: #8ea1bc;
+        --chip: rgba(255, 255, 255, 0.045);
+        --chip-hover: rgba(255, 255, 255, 0.08);
+        --accent: #34d399;
+        --accent-2: #3b82f6;
+        --shadow: 0 22px 50px rgba(0, 0, 0, 0.24);
+        --page: radial-gradient(
+            circle at top left,
+            rgba(52, 211, 153, 0.1),
+            transparent 20%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(99, 102, 241, 0.1),
+            transparent 20%
+          ),
+          linear-gradient(180deg, #040915 0%, #0a1220 45%, #050b16 100%);
+      }
 
+      body.light {
+        --surface: rgba(255, 255, 255, 0.9);
+        --surface-soft: rgba(255, 255, 255, 0.96);
+        --line: rgba(15, 23, 42, 0.08);
+        --line-soft: rgba(15, 23, 42, 0.04);
+        --text: #0f172a;
+        --text-soft: #334155;
+        --text-muted: #64748b;
+        --chip: rgba(15, 23, 42, 0.035);
+        --chip-hover: rgba(15, 23, 42, 0.07);
+        --shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+        --page: radial-gradient(
+            circle at top left,
+            rgba(52, 211, 153, 0.09),
+            transparent 20%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(59, 130, 246, 0.08),
+            transparent 20%
+          ),
+          linear-gradient(180deg, #f8fafc 0%, #f3f7ff 44%, #f8fafc 100%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--page);
+        color: var(--text);
+      }
+      body {
+        min-height: 100vh;
+        overflow-x: hidden;
+        transition: background 0.25s ease, color 0.25s ease;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      button {
+        font: inherit;
+      }
+
+      .hero-backdrop {
+        position: fixed;
+        inset: 0 0 auto 0;
+        height: 44vh;
+        min-height: 300px;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        z-index: 0;
+      }
+      .hero-backdrop::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            180deg,
+            rgba(3, 8, 20, 0.18) 0%,
+            rgba(3, 8, 20, 0.42) 52%,
+            rgba(3, 8, 20, 0.84) 100%
+          ),
+          linear-gradient(
+            90deg,
+            rgba(3, 8, 20, 0.3) 0%,
+            rgba(3, 8, 20, 0.06) 38%,
+            rgba(3, 8, 20, 0.3) 100%
+          );
+      }
+      body.light .hero-backdrop::after {
+        background: linear-gradient(
+            180deg,
+            rgba(248, 250, 252, 0.06) 0%,
+            rgba(248, 250, 252, 0.26) 50%,
+            rgba(243, 247, 255, 0.9) 100%
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.02) 38%,
+            rgba(255, 255, 255, 0.1) 100%
+          );
+      }
+
+      .app {
+        position: relative;
+        z-index: 1;
+        width: min(100vw, 1880px);
+        margin: 0 auto;
+        padding: 36vh 18px 22px;
+      }
+
+      .top-strip,
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .top-strip {
+        margin-bottom: 12px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .brand-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+      }
+      .brand-label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: var(--text-muted);
+      }
+      .strip-right,
+      .headline-tags,
+      .news-tools,
+      .card-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .chip,
+      .btn,
+      .ghost,
+      .state {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 13px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.03),
+            rgba(255, 255, 255, 0.01)
+          ),
+          var(--chip);
+        color: var(--text-soft);
+        white-space: nowrap;
+        backdrop-filter: blur(12px);
+      }
+      .btn,
+      .ghost {
+        cursor: pointer;
+        color: var(--text);
+        transition: 0.18s ease;
+      }
+      .btn:hover,
+      .ghost:hover {
+        background: var(--chip-hover);
+        transform: translateY(-1px);
+      }
+      .btn.primary {
+        border: none;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+        box-shadow: 0 12px 26px rgba(59, 130, 246, 0.22);
+      }
+      .state {
+        font-size: 0.78rem;
+      }
+
+      .panel {
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.03),
+            rgba(255, 255, 255, 0)
+          ),
+          var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        backdrop-filter: blur(18px);
+      }
+
+      .headline {
+        display: grid;
+        grid-template-columns: 1.18fr 0.9fr 0.82fr;
+        gap: 14px;
+        margin-bottom: 12px;
+      }
+      .time-panel,
+      .weather-panel,
+      .spark-panel {
+        min-height: 250px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .time-panel {
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.02),
+            rgba(255, 255, 255, 0)
+          ),
+          radial-gradient(
+            circle at top left,
+            rgba(45, 212, 191, 0.08),
+            transparent 26%
+          ),
+          var(--surface);
+      }
+      .weather-panel {
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.02),
+            rgba(255, 255, 255, 0)
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(59, 130, 246, 0.08),
+            transparent 26%
+          ),
+          var(--surface);
+      }
+      .spark-panel {
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.02),
+            rgba(255, 255, 255, 0)
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(245, 158, 11, 0.1),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at bottom left,
+            rgba(139, 92, 246, 0.08),
+            transparent 30%
+          ),
+          var(--surface);
+      }
+
+      .eyebrow,
+      .section-label {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--text-muted);
+      }
+      .clock {
+        margin: 10px 0 0;
+        font-size: clamp(3.4rem, 8vw, 6.8rem);
+        line-height: 0.92;
+        letter-spacing: -0.06em;
+        font-weight: 800;
+      }
+      .date-line {
+        margin-top: 8px;
+        color: var(--text-soft);
+        font-size: clamp(1rem, 1.7vw, 1.2rem);
+      }
+      .headline-copy {
+        margin-top: 14px;
+      }
+      .headline-line {
+        margin: 8px 0 0;
+        font-size: clamp(1.06rem, 1.5vw, 1.34rem);
+        line-height: 1.5;
+        max-width: 780px;
+      }
+      .subtle {
+        margin-top: 8px;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        line-height: 1.55;
+      }
+
+      .weather-location {
+        margin: 0;
+        font-size: 1.16rem;
+      }
+      .weather-region {
+        margin-top: 4px;
+        color: var(--text-soft);
+        font-size: 0.92rem;
+      }
+      .weather-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 12px 0 8px;
+      }
+      .weather-temp {
+        margin: 0;
+        font-size: clamp(2.7rem, 5vw, 3.9rem);
+        line-height: 0.95;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+      }
+      .weather-summary {
+        margin-top: 6px;
+        color: var(--text-soft);
+      }
+      .weather-icon {
+        font-size: 2.8rem;
+        line-height: 1;
+      }
+      .weather-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .stat {
+        border: 1px solid var(--line-soft);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 15px;
+        padding: 11px 12px;
+      }
+      body.light .stat {
+        background: rgba(15, 23, 42, 0.02);
+      }
+      .stat-k {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+      }
+      .stat-v {
+        font-size: 0.98rem;
+        font-weight: 700;
+      }
+
+      .spark-shell {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 14px;
+        height: 100%;
+      }
+      .spark-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: linear-gradient(
+          135deg,
+          rgba(245, 158, 11, 0.18),
+          rgba(139, 92, 246, 0.14)
+        );
+        border: 1px solid var(--line);
+        color: var(--text);
+        font-size: 0.8rem;
+        font-weight: 700;
+        width: fit-content;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+      .spark-title {
+        margin: 0;
+        font-size: 1.22rem;
+        line-height: 1.45;
+        letter-spacing: -0.01em;
+      }
+      .spark-desc {
+        margin: 0;
+        color: var(--text-soft);
+        font-size: 0.93rem;
+        line-height: 1.6;
+      }
+      .spark-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .spark-muted {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        line-height: 1.45;
+      }
+      .spark-swatch {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 10px 22px rgba(0, 0, 0, 0.14);
+        flex: 0 0 auto;
+      }
+      .spark-refresh {
+        min-height: 36px;
+      }
+
+      .quick-panel {
+        padding: 13px;
+        margin-bottom: 12px;
+      }
+      .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .quick-link {
+        border: 1px solid var(--line-soft);
+        border-radius: 16px;
+        min-height: 84px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0)
+        );
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-align: center;
+        padding: 10px 8px;
+        transition: 0.18s ease;
+      }
+      .quick-link:hover {
+        background: var(--chip);
+        transform: translateY(-1px);
+      }
+      .quick-icon-shell {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        background: var(--chip);
+        border: 1px solid var(--line-soft);
+        overflow: hidden;
+      }
+      .quick-icon {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        display: block;
+      }
+      .quick-name {
+        font-size: 0.82rem;
+        line-height: 1.3;
+        color: var(--text-soft);
+      }
+
+      .news-shell {
+        display: grid;
+        gap: 12px;
+      }
+      .news-summary {
+        padding: 12px 14px;
+      }
+      .news-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .news-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 14px;
+      }
+      .span-6 {
+        grid-column: span 6;
+      }
+      .span-4 {
+        grid-column: span 4;
+      }
+      .news-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 520px;
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.03),
+            rgba(255, 255, 255, 0)
+          ),
+          var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: transform 0.18s ease, border-color 0.18s ease,
+          box-shadow 0.18s ease;
+        backdrop-filter: blur(16px);
+      }
+      .news-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.13);
+        box-shadow: 0 24px 54px rgba(0, 0, 0, 0.26);
+      }
+      .news-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--card-accent);
+        opacity: 0.72;
+        pointer-events: none;
+      }
+      .card-head {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 15px 15px 8px;
+      }
+      .card-eyebrow {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+      .card-title {
+        margin: 0;
+        font-size: 1.15rem;
+        line-height: 1.2;
+      }
+      .card-subtitle {
+        margin: 6px 0 0;
+        color: var(--text-soft);
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+      .card-body {
+        position: relative;
+        z-index: 1;
+        padding: 0 15px 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100%;
+      }
+
+      .media {
+        position: relative;
+        height: 285px;
+        border-radius: 15px;
+        overflow: hidden;
+        background: radial-gradient(
+            circle at top left,
+            rgba(59, 130, 246, 0.16),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at bottom right,
+            rgba(52, 211, 153, 0.1),
+            transparent 28%
+          ),
+          linear-gradient(
+            180deg,
+            rgba(148, 163, 184, 0.16),
+            rgba(148, 163, 184, 0.1)
+          );
+        border: 1px solid var(--line-soft);
+      }
+      .media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        opacity: 0;
+        transition: transform 0.7s ease, opacity 0.2s ease;
+      }
+      .media img.ready {
+        opacity: 1;
+      }
+      .news-card:hover .media img {
+        transform: scale(1.03);
+      }
+      .media::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0) 0%,
+          rgba(2, 6, 23, 0.18) 55%,
+          rgba(2, 6, 23, 0.56) 100%
+        );
+        pointer-events: none;
+      }
+      .media-placeholder {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 12px;
+        text-align: center;
+        color: var(--text-soft);
+        font-size: 0.84rem;
+      }
+      .media-meta {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: center;
+      }
+      .meta-pill {
+        min-height: 30px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.62);
+        color: #f8fafc;
+        font-size: 0.76rem;
+        backdrop-filter: blur(8px);
+        white-space: nowrap;
+      }
+
+      .story {
+        min-height: 126px;
+      }
+      .story-title {
+        margin: 0 0 10px;
+        font-size: 1.06rem;
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .story-desc {
+        margin: 0;
+        color: var(--text-soft);
+        font-size: 0.93rem;
+        line-height: 1.68;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .story-footer {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .source {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        max-width: 52%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .read {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+        font-weight: 700;
+        font-size: 0.88rem;
+        box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
+      }
+      .progress {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 7px;
+      }
+      .progress button {
+        height: 6px;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.22);
+        padding: 0;
+        cursor: pointer;
+        transition: 0.16s ease;
+      }
+      .progress button.active {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+      .progress button:hover {
+        transform: scaleY(1.18);
+      }
+
+      .loading,
+      .empty {
+        min-height: 356px;
+        border-radius: 15px;
+        border: 1px dashed var(--line);
+        background: rgba(255, 255, 255, 0.02);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        text-align: center;
+        color: var(--text-soft);
+      }
+      .empty strong {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--text);
+      }
+      .skeleton {
+        width: 100%;
+        display: grid;
+        gap: 10px;
+      }
+      .sk-box,
+      .sk-line {
+        position: relative;
+        overflow: hidden;
+        background: rgba(148, 163, 184, 0.16);
+        border-radius: 14px;
+      }
+      .sk-box {
+        height: 285px;
+      }
+      .sk-line {
+        height: 13px;
+      }
+      .sk-line.w1 {
+        width: 72%;
+      }
+      .sk-line.w2 {
+        width: 100%;
+      }
+      .sk-line.w3 {
+        width: 58%;
+      }
+      .sk-box::after,
+      .sk-line::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.18),
+          transparent
+        );
+        animation: shimmer 1.4s infinite;
+      }
+      @keyframes shimmer {
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @media (max-width: 1280px) {
+        .quick-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 1180px) {
+        .hero-backdrop {
+          height: 38vh;
+          min-height: 260px;
+        }
+        .app {
+          padding-top: 30vh;
+        }
+        .headline {
+          grid-template-columns: 1fr;
+        }
+        .span-6,
+        .span-4 {
+          grid-column: span 6;
+        }
+      }
+      @media (max-width: 760px) {
+        .hero-backdrop {
+          height: 32vh;
+          min-height: 220px;
+        }
+        .app {
+          padding: 25vh 12px 18px;
+        }
+        .news-grid {
+          grid-template-columns: 1fr;
+        }
+        .span-6,
+        .span-4 {
+          grid-column: auto;
+        }
+        .quick-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .weather-stats {
+          grid-template-columns: 1fr;
+        }
+        .source {
+          max-width: 100%;
+        }
+        .read {
+          width: 100%;
+        }
+        .story-footer {
+          align-items: stretch;
+        }
+        .media-meta {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .meta-pill:last-child {
+          align-self: flex-end;
+        }
+        .card-head {
+          flex-direction: column;
+        }
+        .card-actions {
+          justify-content: space-between;
+        }
+      }
+      @media (max-width: 520px) {
+        .quick-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero-backdrop" id="heroBackdrop"></div>
+    <main class="app">
+      <div class="top-strip">
+        <div class="brand">
+          <span class="brand-dot"></span
+          ><span class="brand-label">Updated</span>
+        </div>
+        <div class="strip-right">
+          <div class="chip" id="newsUpdatedChip">News not refreshed yet</div>
+          <button class="btn" id="refreshAllBtn" type="button">
+            ↻ Reload news
+          </button>
+          <button class="btn primary" id="themeToggle" type="button">
+            ☀ Light theme
+          </button>
+        </div>
+      </div>
+
+      <section class="headline">
+        <section class="panel time-panel">
+          <div>
+            <div class="panel-head">
+              <div class="headline-tags">
+                <span class="chip">Front page</span
+                ><span class="chip" id="timezoneLabel">Asia/Kolkata</span>
+              </div>
+            </div>
+            <h1 class="clock" id="clock">00:00 AM</h1>
+            <div class="date-line" id="dateLine">Loading date…</div>
+          </div>
+          <div class="headline-copy">
+            <div class="eyebrow">Today’s watchlist</div>
+            <p class="headline-line">
+              India, market moves, global conflict updates, IPL and technology
+              stories — all rotating live in one clean screen.
+            </p>
+            <div class="subtle" id="heroNote">
+              If live location lookup is unavailable, the screen stays anchored
+              to Mumbai for time and weather context.
+            </div>
+          </div>
+        </section>
+
+        <section class="panel weather-panel">
+          <div>
+            <div class="panel-head" style="align-items: flex-start">
+              <div>
+                <div class="section-label">Local weather</div>
+                <h2 class="weather-location" id="weatherLocation">Mumbai</h2>
+                <div class="weather-region" id="weatherRegion">
+                  Maharashtra, India
+                </div>
+              </div>
+              <span class="chip" id="weatherUpdated">Updated --:--</span>
+            </div>
+            <div class="weather-main">
+              <div>
+                <p class="weather-temp" id="weatherTemp">--°C</p>
+                <div class="weather-summary" id="weatherSummary">
+                  Loading current conditions…
+                </div>
+              </div>
+              <div class="weather-icon" id="weatherIcon">⛅</div>
+            </div>
+          </div>
+          <div class="weather-stats">
+            <div class="stat">
+              <div class="stat-k">Feels like</div>
+              <div class="stat-v" id="weatherFeels">--°C</div>
+            </div>
+            <div class="stat">
+              <div class="stat-k">Wind</div>
+              <div class="stat-v" id="weatherWind">-- km/h</div>
+            </div>
+            <div class="stat">
+              <div class="stat-k">Condition</div>
+              <div class="stat-v" id="weatherCondition">--</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel spark-panel">
+          <div class="spark-shell">
+            <div>
+              <div class="panel-head" style="align-items: flex-start">
+                <div>
+                  <div class="section-label">Daily spark</div>
+                  <h2 class="weather-location" id="sparkLabel">
+                    Thought of the day
+                  </h2>
+                </div>
+                <button
+                  class="ghost spark-refresh"
+                  id="sparkRefreshBtn"
+                  type="button"
+                >
+                  ↻ New one
+                </button>
+              </div>
+              <div style="display: grid; gap: 10px; margin-top: 12px">
+                <div class="spark-badge" id="sparkType">Thought</div>
+                <h3 class="spark-title" id="sparkTitle">
+                  Loading something good…
+                </h3>
+                <p class="spark-desc" id="sparkDesc">
+                  A rotating little dose of internet energy: a decent joke, a
+                  thought, a color cue, or a tiny prompt.
+                </p>
+              </div>
+            </div>
+            <div class="spark-foot">
+              <div class="spark-muted" id="sparkMeta">
+                Curated locally for a consistent, no-fail front page experience.
+              </div>
+              <div
+                class="spark-swatch"
+                id="sparkSwatch"
+                style="background: #34d399"
+              ></div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel quick-panel">
+        <div class="panel-head" style="margin-bottom: 12px">
+          <div class="section-label">Quick launch</div>
+          <div class="subtle" style="margin: 0">
+            Daily tools and trusted news sites
+          </div>
+        </div>
+        <div id="quickGrid" class="quick-grid"></div>
+      </section>
+
+      <section class="news-shell">
+        <section class="panel news-summary">
+          <div class="panel-head">
+            <div>
+              <div class="section-label">News feed</div>
+              <p class="news-title">Top live topics</p>
+            </div>
+            <div class="news-tools">
+              <div class="chip">Hover any card to pause</div>
+              <div class="chip">Reload fetches fresh headlines</div>
+            </div>
+          </div>
+        </section>
+        <section id="newsGrid" class="news-grid"></section>
+      </section>
+    </main>
+
+    <script>
+      const API_KEY = "pub_40ecaec140864e5e96eb862f1d5e96c4";
+      const AUTO_ROTATE_MS = 4500;
+      const WEATHER_REFRESH_MS = 10 * 60 * 1000;
+      const DEFAULT_THEME = localStorage.getItem("news_theme") || "dark";
+      const HERO_BACKGROUNDS = [
+        "https://images7.alphacoders.com/139/thumb-1920-1398582.jpg",
+        "https://images7.alphacoders.com/135/thumb-1920-1354305.jpeg",
+        "https://images2.alphacoders.com/140/thumb-1920-1407397.jpg",
+        "https://images3.alphacoders.com/137/thumb-1920-1379858.png",
+        "https://images4.alphacoders.com/132/thumb-1920-1321259.png",
+        "https://images4.alphacoders.com/137/thumb-1920-1374662.png",
+        "https://images.alphacoders.com/135/thumb-1920-1350899.png",
+        "https://images2.alphacoders.com/589/thumb-1920-589058.jpg",
+      ];
+
+      const QUICK_LINKS = [
+        {
+          name: "Bing",
+          url: "https://www.bing.com",
+          icon: "https://www.google.com/s2/favicons?sz=64&domain_url=bing.com",
+        },
+        {
+          name: "Google",
+          url: "https://www.google.com",
+          icon: "https://www.google.com/s2/favicons?sz=64&domain_url=google.com",
+        },
+        {
+          name: "M365 Copilot",
+          url: "https://www.microsoft.com/en-us/microsoft-365/copilot",
+          icon: "https://www.google.com/s2/favicons?sz=64&domain_url=microsoft.com",
+        },
+        {
+          name: "Microsoft 365",
+          url: "https://www.office.com",
+          icon: "https://www.google.com/s2/favicons?sz=64&domain_url=office.com",
+        },
+        {
+          name: "Reuters",
+          url: "https://www.reuters.com",
+          icon: "https://www.google.com/s2/favicons?sz=64&domain_url=reuters.com",
+        },
+        {
+          name: "BBC News",
+          url: "https://www.bbc.com/news",
+          icon: "https://www.google.com/s2/favicons?sz=64&domain_url=bbc.com",
+        },
+        {
+          name: "CNBC",
+          url: "https://www.cnbc.com",
+          icon: "https://www.google.com/s2/favicons?sz=64&domain_url=cnbc.com",
+        },
+        {
+          name: "Economic Times",
+          url: "https://economictimes.indiatimes.com",
+          icon: "https://www.google.com/s2/favicons?sz=64&domain_url=indiatimes.com",
+        },
+      ];
+
+      const MUMBAI_DEFAULT = {
+        city: "Mumbai",
+        region: "Maharashtra",
+        country_name: "India",
+        latitude: 19.076,
+        longitude: 72.8777,
+        timezone: "Asia/Kolkata",
+      };
+      const SPARK_ITEMS = [
+        {
+          type: "Mood",
+          label: "Daily vibe",
+          title: "No thoughts, just tabs.",
+          desc: "A respectful tribute to anyone currently operating with 37 browser tabs and one brave coffee.",
+          meta: "Chaotic neutral productivity",
+          color: "#8b5cf6",
+        },
+        {
+          type: "Joke",
+          label: "Gen Z joke",
+          title:
+            "Today’s personality is basically: on 2% battery but still outside.",
+          desc: 'Somehow still functioning. Somehow still replying with "we move."',
+          meta: "Main-character resilience",
+          color: "#22c55e",
+        },
+        {
+          type: "Thought",
+          label: "Thought of the day",
+          title:
+            "If the design feels easy, the hard part was probably done right.",
+          desc: "Clean interfaces hide effort. That is the flex.",
+          meta: "Design perspective",
+          color: "#0ea5e9",
+        },
+        {
+          type: "Color",
+          label: "Color of the day",
+          title: "Cobalt Mode · #2563eb",
+          desc: "Sharp, high-contrast, and a little dramatic — basically the UI equivalent of showing up well dressed for no reason.",
+          meta: "Palette pick",
+          color: "#2563eb",
+        },
+        {
+          type: "Meme",
+          label: "Work meme",
+          title:
+            "Me: quick five-minute fix. Also me: respectfully rewriting half the file.",
+          desc: "If the result is cleaner, that still counts as efficiency.",
+          meta: "Developer folklore",
+          color: "#f59e0b",
+        },
+        {
+          type: "Prompt",
+          label: "Creative prompt",
+          title:
+            "If this screen had a soundtrack, would it be lo-fi, synthwave, or dramatic HBO intro music?",
+          desc: "Tiny question, surprisingly important energy check.",
+          meta: "Vibe calibration",
+          color: "#ef4444",
+        },
+        {
+          type: "Mood",
+          label: "Internet mood",
+          title: "A little delulu, a lot committed.",
+          desc: "Sometimes confidence arrives before the full plan. That is still forward motion.",
+          meta: "Optimism with Wi‑Fi",
+          color: "#14b8a6",
+        },
+        {
+          type: "Joke",
+          label: "Gen Z joke",
+          title: "My sleep schedule and I are no-contact right now.",
+          desc: "We had differences. Mostly at 2:43 AM.",
+          meta: "Late-night realism",
+          color: "#a855f7",
+        },
+      ];
+
+      const TOPICS = [
+        {
+          id: "india",
+          title: "India",
+          subtitle: "Latest headlines from India",
+          className: "span-6",
+          accent:
+            "linear-gradient(180deg, rgba(45,212,191,.07), transparent 45%)",
+          endpoint: `https://newsdata.io/api/1/latest?apikey=${API_KEY}&q=India&country=in&language=en&size=5`,
+          fallbackImage:
+            "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          id: "war",
+          title: "War Updates",
+          subtitle: "Global conflict coverage",
+          className: "span-6",
+          accent:
+            "linear-gradient(180deg, rgba(244,63,94,.07), transparent 45%)",
+          endpoint: `https://newsdata.io/api/1/latest?apikey=${API_KEY}&q=war&language=en&size=5`,
+          fallbackImage:
+            "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          id: "market",
+          title: "Market",
+          subtitle: "Financial and market pulse",
+          className: "span-4",
+          accent:
+            "linear-gradient(180deg, rgba(16,185,129,.07), transparent 45%)",
+          endpoint: `https://newsdata.io/api/1/market?apikey=${API_KEY}&q=market&language=en&size=5`,
+          fallbackImage:
+            "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          id: "ipl",
+          title: "IPL",
+          subtitle: "Cricket buzz and match stories",
+          className: "span-4",
+          accent:
+            "linear-gradient(180deg, rgba(168,85,247,.07), transparent 45%)",
+          endpoint: `https://newsdata.io/api/1/latest?apikey=${API_KEY}&q=IPL&language=en&size=5`,
+          fallbackImage:
+            "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          id: "ai",
+          title: "AI / Tech",
+          subtitle: "Artificial intelligence and tech updates",
+          className: "span-4",
+          accent:
+            "linear-gradient(180deg, rgba(59,130,246,.07), transparent 45%)",
+          endpoint: `https://newsdata.io/api/1/latest?apikey=${API_KEY}&q=artificial%20intelligence&category=technology&language=en&size=5`,
+          fallbackImage:
+            "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80",
+        },
+      ];
+
+      const state = {};
+      const heroBackdrop = document.getElementById("heroBackdrop");
+      const grid = document.getElementById("newsGrid");
+      const quickGrid = document.getElementById("quickGrid");
+      const themeToggle = document.getElementById("themeToggle");
+      const refreshAllBtn = document.getElementById("refreshAllBtn");
+      const newsUpdatedChip = document.getElementById("newsUpdatedChip");
+      const timezoneLabel = document.getElementById("timezoneLabel");
+      const clockEl = document.getElementById("clock");
+      const dateLineEl = document.getElementById("dateLine");
+      const heroNoteEl = document.getElementById("heroNote");
+      const weatherLocationEl = document.getElementById("weatherLocation");
+      const weatherRegionEl = document.getElementById("weatherRegion");
+      const weatherTempEl = document.getElementById("weatherTemp");
+      const weatherSummaryEl = document.getElementById("weatherSummary");
+      const weatherFeelsEl = document.getElementById("weatherFeels");
+      const weatherWindEl = document.getElementById("weatherWind");
+      const weatherConditionEl = document.getElementById("weatherCondition");
+      const weatherUpdatedEl = document.getElementById("weatherUpdated");
+      const weatherIconEl = document.getElementById("weatherIcon");
+      const sparkLabelEl = document.getElementById("sparkLabel");
+      const sparkTypeEl = document.getElementById("sparkType");
+      const sparkTitleEl = document.getElementById("sparkTitle");
+      const sparkDescEl = document.getElementById("sparkDesc");
+      const sparkMetaEl = document.getElementById("sparkMeta");
+      const sparkSwatchEl = document.getElementById("sparkSwatch");
+      const sparkRefreshBtn = document.getElementById("sparkRefreshBtn");
+
+      let activeTimeZone = MUMBAI_DEFAULT.timezone;
+      let weatherLocation = { ...MUMBAI_DEFAULT };
+      let sparkIndex = 0;
+
+      function setHeroBackground() {
+        const daySeed = new Date().getDate() + new Date().getMonth() * 31;
+        const randomIndex = Math.floor(Math.random() * HERO_BACKGROUNDS.length);
+        const bg = HERO_BACKGROUNDS[randomIndex];
+        heroBackdrop.style.backgroundImage = `url(${bg})`;
+      }
+      function applyTheme(theme) {
+        document.body.classList.toggle("light", theme === "light");
+        themeToggle.textContent =
+          theme === "light" ? "🌙 Dark theme" : "☀ Light theme";
+        localStorage.setItem("news_theme", theme);
+      }
+      function toggleTheme() {
+        applyTheme(
+          document.body.classList.contains("light") ? "dark" : "light"
+        );
+      }
+      function updateClock() {
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+          timeZone: activeTimeZone,
+        });
+        dateLineEl.textContent = now.toLocaleDateString([], {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          timeZone: activeTimeZone,
+        });
+        timezoneLabel.textContent = activeTimeZone.replaceAll("_", " ");
+      }
+      function truncate(text, maxLength) {
+        const clean = String(text || "").trim();
+        return !clean
+          ? "Open the article to read the full story."
+          : clean.length > maxLength
+          ? clean.slice(0, maxLength).trim() + "…"
+          : clean;
+      }
+      function formatDate(dateStr) {
+        const d = new Date(dateStr);
+        return !dateStr || Number.isNaN(d.getTime())
+          ? "Recently published"
+          : d.toLocaleString([], {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            });
+      }
+      function getSafeArticles(payload) {
+        return payload && Array.isArray(payload.results)
+          ? payload.results.filter(Boolean)
+          : [];
+      }
+      function updateNewsUpdatedChip() {
+        newsUpdatedChip.textContent = `News refreshed ${new Date().toLocaleTimeString(
+          [],
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: activeTimeZone,
+          }
+        )}`;
+      }
+
+      function buildQuickLinks() {
+        quickGrid.innerHTML = "";
+        QUICK_LINKS.forEach((item) => {
+          const a = document.createElement("a");
+          a.className = "quick-link";
+          a.href = item.url;
+          a.target = "_blank";
+          a.rel = "noreferrer noopener";
+          const iconShell = document.createElement("div");
+          iconShell.className = "quick-icon-shell";
+          const img = document.createElement("img");
+          img.className = "quick-icon";
+          img.src = item.icon;
+          img.alt = item.name;
+          img.referrerPolicy = "no-referrer";
+          img.onerror = () => {
+            img.style.display = "none";
+            iconShell.textContent = item.name.charAt(0).toUpperCase();
+            iconShell.style.fontWeight = "800";
+            iconShell.style.color = "var(--text)";
+          };
+          iconShell.appendChild(img);
+          const name = document.createElement("div");
+          name.className = "quick-name";
+          name.textContent = item.name;
+          a.appendChild(iconShell);
+          a.appendChild(name);
+          quickGrid.appendChild(a);
+        });
+      }
+
+      function renderSpark(index) {
+        const item = SPARK_ITEMS[index % SPARK_ITEMS.length];
+        sparkLabelEl.textContent = item.label;
+        sparkTypeEl.textContent = item.type;
+        sparkTitleEl.textContent = item.title;
+        sparkDescEl.textContent = item.desc;
+        sparkMetaEl.textContent = item.meta;
+        sparkSwatchEl.style.background = item.color;
+        sparkSwatchEl.title = item.color;
+      }
+      function nextSpark() {
+        sparkIndex = (sparkIndex + 1) % SPARK_ITEMS.length;
+        renderSpark(sparkIndex);
+      }
+
+      function createCard(topic) {
+        const el = document.createElement("article");
+        el.className = `news-card ${topic.className}`;
+        el.style.setProperty("--card-accent", topic.accent);
+        el.dataset.topic = topic.id;
+        el.innerHTML = `
+        <div class="card-head"><div><div class="card-eyebrow">Live feed</div><h2 class="card-title">${topic.title}</h2><p class="card-subtitle">${topic.subtitle}</p></div><div class="card-actions"><button class="ghost refresh-btn" type="button">↻</button><div class="state">Auto</div></div></div>
+        <div class="card-body" data-role="body"><div class="loading"><div class="skeleton"><div class="sk-box"></div><div class="sk-line w1"></div><div class="sk-line w2"></div><div class="sk-line w3"></div></div></div></div>`;
+        el.addEventListener("mouseenter", () => setPaused(topic.id, true));
+        el.addEventListener("mouseleave", () => setPaused(topic.id, false));
+        el.querySelector(".refresh-btn").addEventListener("click", () =>
+          loadNews(topic.id, true)
+        );
+        grid.appendChild(el);
+      }
+
+      async function fetchJsonWithRetry(topic) {
+        const original = new URL(topic.endpoint);
+        const apiKey = original.searchParams.get("apikey") || API_KEY;
+        const headerUrl = new URL(original.toString());
+        headerUrl.searchParams.delete("apikey");
+        const attempts = [
+          () =>
+            fetch(original.toString(), {
+              cache: "no-store",
+              headers: { Accept: "application/json" },
+            }),
+          () =>
+            fetch(headerUrl.toString(), {
+              cache: "no-store",
+              headers: { Accept: "application/json", "X-ACCESS-KEY": apiKey },
+            }),
+        ];
+        let lastError = new Error("Unable to load news.");
+        for (const run of attempts) {
+          try {
+            const response = await run();
+            const raw = await response.text();
+            const data = JSON.parse(raw);
+            if (!response.ok)
+              throw new Error(
+                data?.results?.message ||
+                  data?.message ||
+                  `News request failed (${response.status}).`
+              );
+            if (Array.isArray(data.results)) return data;
+            if (data?.status === "success")
+              return {
+                results: Array.isArray(data.results) ? data.results : [],
+              };
+            throw new Error(
+              data?.message ||
+                data?.results?.message ||
+                "Unexpected news response."
+            );
+          } catch (error) {
+            lastError =
+              error instanceof Error
+                ? error
+                : new Error("Unable to load news.");
+          }
+        }
+        throw lastError;
+      }
+
+      function setImageWithFallback(
+        imgEl,
+        placeholderEl,
+        candidates,
+        fallback,
+        label
+      ) {
+        const list = [...candidates.filter(Boolean), fallback].filter(Boolean);
+        let index = 0;
+        imgEl.referrerPolicy = "no-referrer";
+        imgEl.loading = "eager";
+        imgEl.decoding = "async";
+        imgEl.classList.remove("ready");
+        placeholderEl.textContent = label;
+        placeholderEl.style.display = "grid";
+        const tryNext = () => {
+          if (index < list.length) imgEl.src = list[index];
+        };
+        imgEl.onload = () => {
+          imgEl.classList.add("ready");
+          placeholderEl.style.display = "none";
+        };
+        imgEl.onerror = () => {
+          index += 1;
+          if (index < list.length) tryNext();
+          else {
+            imgEl.onerror = null;
+            imgEl.onload = null;
+            placeholderEl.textContent = `${label} image unavailable`;
+            placeholderEl.style.display = "grid";
+          }
+        };
+        tryNext();
+      }
+
+      function renderCard(topicId) {
+        const topic = TOPICS.find((item) => item.id === topicId);
+        const topicState = state[topicId];
+        const card = document.querySelector(
+          `.news-card[data-topic="${topicId}"]`
+        );
+        if (!topic || !topicState || !card) return;
+        card.querySelector(".state").textContent = topicState.paused
+          ? "Paused"
+          : "Auto";
+        const body = card.querySelector('[data-role="body"]');
+
+        if (topicState.loading) {
+          body.innerHTML = `<div class="loading"><div class="skeleton"><div class="sk-box"></div><div class="sk-line w1"></div><div class="sk-line w2"></div><div class="sk-line w3"></div></div></div>`;
+          return;
+        }
+        if (topicState.error) {
+          body.innerHTML = `<div class="empty"><div><strong>${topic.title} unavailable</strong>${topicState.error}</div></div>`;
+          return;
+        }
+        const articles = topicState.articles;
+        const current = articles[topicState.index];
+        if (!current) {
+          body.innerHTML = `<div class="empty">No article available right now.</div>`;
+          return;
+        }
+
+        body.innerHTML = `<div class="media"><div class="media-placeholder"></div><img alt="Article image" /><div class="media-meta"><div class="meta-pill js-date"></div><div class="meta-pill js-count"></div></div></div><div class="story"><h3 class="story-title"></h3><p class="story-desc"></p></div><div class="story-footer"><div class="source"></div><a class="read" target="_blank" rel="noreferrer noopener">Read more ↗</a></div><div class="progress"></div>`;
+        const imageEl = body.querySelector("img");
+        const placeholderEl = body.querySelector(".media-placeholder");
+        body.querySelector(".story-title").textContent =
+          current.title || "Untitled article";
+        body.querySelector(".story-desc").textContent = truncate(
+          current.description ||
+            current.content ||
+            "Open the article to read the full story.",
+          220
+        );
+        body.querySelector(".source").textContent =
+          current.source_name || current.source_id || "Unknown source";
+        body.querySelector(".read").href = current.link || "#";
+        body.querySelector(".js-date").textContent = formatDate(
+          current.pubDate
+        );
+        body.querySelector(".js-count").textContent = `${
+          topicState.index + 1
+        } / ${articles.length}`;
+        imageEl.alt = current.title || topic.title;
+        setImageWithFallback(
+          imageEl,
+          placeholderEl,
+          [
+            current.image_url,
+            current.image,
+            current.imageUrl,
+            current.image_url_large,
+            current.photo_url,
+            current.image_link,
+          ],
+          topic.fallbackImage,
+          topic.title
+        );
+        const progressEl = body.querySelector(".progress");
+        articles.forEach((_, index) => {
+          const dot = document.createElement("button");
+          dot.type = "button";
+          dot.className = index === topicState.index ? "active" : "";
+          dot.addEventListener("click", () => {
+            topicState.index = index;
+            renderCard(topicId);
+          });
+          progressEl.appendChild(dot);
+        });
+      }
+
+      function setPaused(topicId, paused) {
+        if (!state[topicId]) return;
+        state[topicId].paused = paused;
+        renderCard(topicId);
+      }
+
+      async function loadNews(topicId, forceReload = false) {
+        const topic = TOPICS.find((item) => item.id === topicId);
+        const topicState = state[topicId];
+        if (!topic || !topicState) return;
+        if (topicState.loadedOnce && !forceReload) return;
+        topicState.loading = true;
+        topicState.error = "";
+        renderCard(topicId);
+        try {
+          if (!API_KEY || API_KEY.includes("REPLACE_WITH"))
+            throw new Error(
+              "Add your NewsData API key in the API_KEY constant first."
+            );
+          const data = await fetchJsonWithRetry(topic);
+          const items = getSafeArticles(data);
+          topicState.articles = items;
+          topicState.index = 0;
+          topicState.loadedOnce = true;
+          topicState.error = items.length
+            ? ""
+            : "No articles found right now. Press reload to try again.";
+          updateNewsUpdatedChip();
+        } catch (err) {
+          topicState.error =
+            err instanceof Error
+              ? err.message
+              : "Unable to load this section right now. Press reload to try again.";
+        } finally {
+          topicState.loading = false;
+          renderCard(topicId);
+        }
+      }
+
+      function startRotation() {
+        setInterval(() => {
+          TOPICS.forEach((topic) => {
+            const topicState = state[topic.id];
+            if (
+              !topicState ||
+              topicState.paused ||
+              topicState.loading ||
+              topicState.articles.length <= 1
+            )
+              return;
+            topicState.index =
+              (topicState.index + 1) % topicState.articles.length;
+            renderCard(topic.id);
+          });
+        }, AUTO_ROTATE_MS);
+      }
+
+      function weatherLabelFromCode(code) {
+        const map = {
+          0: ["Clear sky", "☀️"],
+          1: ["Mainly clear", "🌤️"],
+          2: ["Partly cloudy", "⛅"],
+          3: ["Overcast", "☁️"],
+          45: ["Fog", "🌫️"],
+          48: ["Fog", "🌫️"],
+          51: ["Light drizzle", "🌦️"],
+          53: ["Drizzle", "🌦️"],
+          55: ["Dense drizzle", "🌧️"],
+          61: ["Light rain", "🌦️"],
+          63: ["Rain", "🌧️"],
+          65: ["Heavy rain", "🌧️"],
+          71: ["Light snow", "🌨️"],
+          73: ["Snow", "🌨️"],
+          75: ["Heavy snow", "❄️"],
+          80: ["Rain showers", "🌦️"],
+          81: ["Rain showers", "🌧️"],
+          82: ["Heavy showers", "⛈️"],
+          95: ["Thunderstorm", "⛈️"],
+          96: ["Thunderstorm", "⛈️"],
+          99: ["Severe storm", "⛈️"],
+        };
+        return map[code] || ["Weather update", "⛅"];
+      }
+
+      async function detectLocation() {
+        try {
+          const res = await fetch("https://ipapi.co/json/", {
+            cache: "no-store",
+          });
+          const data = await res.json();
+          const lat = Number(data.latitude),
+            lon = Number(data.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lon))
+            throw new Error("Bad location");
+          weatherLocation = {
+            city: data.city || MUMBAI_DEFAULT.city,
+            region: data.region || MUMBAI_DEFAULT.region,
+            country_name: data.country_name || MUMBAI_DEFAULT.country_name,
+            latitude: lat,
+            longitude: lon,
+            timezone: data.timezone || MUMBAI_DEFAULT.timezone,
+          };
+        } catch {
+          weatherLocation = { ...MUMBAI_DEFAULT };
+        }
+        activeTimeZone = weatherLocation.timezone;
+        weatherLocationEl.textContent = weatherLocation.city;
+        weatherRegionEl.textContent = `${weatherLocation.region}, ${weatherLocation.country_name}`;
+        heroNoteEl.textContent = `Location and weather stay anchored to ${weatherLocation.city} whenever live IP lookup is unavailable, so the layout never breaks.`;
+        updateClock();
+      }
+
+      async function loadWeather() {
+        if (
+          !weatherLocation ||
+          !Number.isFinite(weatherLocation.latitude) ||
+          !Number.isFinite(weatherLocation.longitude)
+        )
+          weatherLocation = { ...MUMBAI_DEFAULT };
+        weatherLocationEl.textContent = weatherLocation.city;
+        weatherRegionEl.textContent = `${weatherLocation.region}, ${weatherLocation.country_name}`;
+        try {
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${weatherLocation.latitude}&longitude=${weatherLocation.longitude}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`;
+          const res = await fetch(url, { cache: "no-store" });
+          const data = await res.json();
+          const current = data.current || {};
+          const [summary, icon] = weatherLabelFromCode(current.weather_code);
+          weatherTempEl.textContent = Number.isFinite(current.temperature_2m)
+            ? `${Math.round(current.temperature_2m)}°C`
+            : "--°C";
+          weatherSummaryEl.textContent = summary;
+          weatherFeelsEl.textContent = Number.isFinite(
+            current.apparent_temperature
+          )
+            ? `${Math.round(current.apparent_temperature)}°C`
+            : "--°C";
+          weatherWindEl.textContent = Number.isFinite(current.wind_speed_10m)
+            ? `${Math.round(current.wind_speed_10m)} km/h`
+            : "-- km/h";
+          weatherConditionEl.textContent = summary;
+          weatherIconEl.textContent = icon;
+          weatherUpdatedEl.textContent = `Updated ${new Date().toLocaleTimeString(
+            [],
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+              timeZone: activeTimeZone,
+            }
+          )}`;
+        } catch {
+          weatherTempEl.textContent = "--°C";
+          weatherSummaryEl.textContent = `Unable to fetch weather. Showing ${weatherLocation.city} as default.`;
+          weatherFeelsEl.textContent = "--°C";
+          weatherWindEl.textContent = "-- km/h";
+          weatherConditionEl.textContent = "Unavailable";
+          weatherIconEl.textContent = "⛅";
+          weatherUpdatedEl.textContent = `${weatherLocation.city} default`;
+        }
+      }
+
+      function init() {
+        setHeroBackground();
+        applyTheme(DEFAULT_THEME);
+        buildQuickLinks();
+        sparkIndex = new Date().getDate() % SPARK_ITEMS.length;
+        renderSpark(sparkIndex);
+        updateClock();
+        setInterval(updateClock, 1000);
+        themeToggle.addEventListener("click", toggleTheme);
+        refreshAllBtn.addEventListener("click", () =>
+          TOPICS.forEach((topic) => loadNews(topic.id, true))
+        );
+        sparkRefreshBtn.addEventListener("click", nextSpark);
+        TOPICS.forEach((topic) => {
+          state[topic.id] = {
+            loading: true,
+            error: "",
+            articles: [],
+            index: 0,
+            paused: false,
+            loadedOnce: false,
+          };
+          createCard(topic);
+          loadNews(topic.id, false);
+        });
+        detectLocation().then(loadWeather);
+        setInterval(loadWeather, WEATHER_REFRESH_MS);
+        setInterval(nextSpark, 14000);
+        startRotation();
+      }
+      init();
+    </script>
+  </body>
+</html>
